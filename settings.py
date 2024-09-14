@@ -20,3 +20,13 @@ cube_matrix = np.array([ # All the cube points in a matrix created with numpy
     [1, -1, -1],
     [-1, -1, -1]
 ])
+
+pyramid_matrix = np.array([
+    [-1, -1, 0],
+    [1, -1, 0],
+    [1, 1, 0],
+    [-1, 1, 0],
+    [0, 0, 2] # Pyramid top
+])
+
+model = cube_matrix

@@ -23,7 +23,7 @@ def create_rotations_matrices(angle_x, angle_y, angle_z):
         [0, 0, 1],
     ])
 
-    # https://en.wikipedia.org/wiki/Rotation_matrix#Basic_3D_rotations <---
+    # https://en.wikipedia.org/wiki/Rotation_matrix#Basic_3D_rotations
 
     return rotation_x_matrix, rotation_y_matrix, rotation_z_matrix
 
@@ -38,6 +38,11 @@ def connect_points(window, points_pos):
     pygame.draw.line(window, (0, 255, 0), (points_pos[0][0], points_pos[0][1]), (points_pos[7][0], points_pos[7][1]))
     pygame.draw.line(window, (0, 255, 0), (points_pos[1][0], points_pos[1][1]), (points_pos[6][0], points_pos[6][1]))
     pygame.draw.line(window, (0, 255, 0), (points_pos[2][0], points_pos[2][1]), (points_pos[5][0], points_pos[5][1]))
+
+    """pygame.draw.lines(window, (0, 255, 0), True, (points_pos[:4]))
+
+    for i in range(4):
+        pygame.draw.line(window, (0, 255, 0), (points_pos[i][0], points_pos[i][1]), (points_pos[4][0], points_pos[4][1]))"""
 
     # https://technology.cpm.org/general/3dgraph/
 
@@ -76,7 +81,7 @@ def main():
         angle_x += 0.01
         angle_y += 0.01
 
-        rotate_x = np.dot(cube_matrix, rotation_x_matrix)
+        rotate_x = np.dot(model, rotation_x_matrix)
         rotate_y = np.dot(rotate_x, rotation_y_matrix)
         rotate_z = np.dot(rotate_y, rotation_z_matrix)
 
