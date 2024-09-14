@@ -1,13 +1,13 @@
 # Rotating Cube
 ## How to install?
-Download the github repo
-Install the following modules: pygame, numpy
-Run the main.py file
+1. Clone the github repo
+2. Install the following modules: pygame, numpy
+3. Run the main.py file
 
 ## Contribute
-Contribution are welcome
-Do whatever you wnat!
+I am open to contributions.
 
 ## Credit
-Discord: fsubject
-Fsubject's property
+* Discord: fsubject
+* Twitter: <a href="https://twitter.com/Fsubj_ect">**@ffsubject**</a>
+* Fsubject's property
