@@ -10,5 +10,4 @@ Do whatever you wnat!
 
 ## Credit
 Discord: fsubject
-
-### Fsubject's property
+Fsubject's property
