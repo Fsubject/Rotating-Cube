@@ -1,28 +1,10 @@
 import numpy as np
 import math
 import pygame
-
-WIN_WIDTH, WIN_HEIGHT = 1200, 800
-
-projection_matrix = np.array([
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 0],
-])
-
-cube_matrix = np.array([ # All the cube points in a matrix created with numpy
-    [-1, -1, 1],
-    [1, -1, 1],
-    [1, 1, 1],
-    [-1, 1, 1],
-    [-1, -1, -1],
-    [1, -1, -1],
-    [1, 1, -1],
-    [-1, 1, -1]
-])
+from settings import *
 
 
-def create_rotation_matrix(angle_x, angle_y, angle_z):
+def create_rotations_matrices(angle_x, angle_y, angle_z):
     rotation_x_matrix = np.array([
         [1, 0, 0],
         [0, math.cos(angle_x), -math.sin(angle_x)],
@@ -47,9 +29,17 @@ def create_rotation_matrix(angle_x, angle_y, angle_z):
 
 
 def connect_points(window, points_pos):
-    for i in range(8):
-        for j in range(8):
-            pygame.draw.line(window, (0, 255, 0), (points_pos[i][0], points_pos[i][1]), (points_pos[j][0], points_pos[j][1]))
+    pygame.draw.line(window, (0, 255, 0), (points_pos[0][0], points_pos[0][1]), (points_pos[3][0], points_pos[3][1]))
+    pygame.draw.line(window, (0, 255, 0), (points_pos[7][0], points_pos[7][1]), (points_pos[4][0], points_pos[4][1]))
+
+    for i in range(7):
+        pygame.draw.line(window, (0, 255, 0), (points_pos[i][0], points_pos[i][1]), (points_pos[i + 1][0], points_pos[i + 1][1]))
+
+    pygame.draw.line(window, (0, 255, 0), (points_pos[0][0], points_pos[0][1]), (points_pos[7][0], points_pos[7][1]))
+    pygame.draw.line(window, (0, 255, 0), (points_pos[1][0], points_pos[1][1]), (points_pos[6][0], points_pos[6][1]))
+    pygame.draw.line(window, (0, 255, 0), (points_pos[2][0], points_pos[2][1]), (points_pos[5][0], points_pos[5][1]))
+
+    # https://technology.cpm.org/general/3dgraph/
 
 
 def main():
@@ -59,7 +49,7 @@ def main():
     clock = pygame.time.Clock()
     running = True
 
-    pygame.display.set_caption("Rotating cube - Fsubject")
+    pygame.display.set_caption("Rotating cube")
 
     angle_x = 0
     angle_y = 0
@@ -73,15 +63,15 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
+            """elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     angle_x += 0.01
                     angle_y += 0.01
                 elif event.key == pygame.K_DOWN:
                     angle_x -= 0.01
-                    angle_y -= 0.01
+                    angle_y -= 0.01"""
 
-        rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = create_rotation_matrix(angle_x, angle_y, angle_z)
+        rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = create_rotations_matrices(angle_x, angle_y, angle_z)
 
         angle_x += 0.01
         angle_y += 0.01
@@ -97,8 +87,8 @@ def main():
 
         points_pos = []
         for point in points_2d:
-            x = (point[0] * 100) + WIN_WIDTH / 2
-            y = (point[1] * 100) + WIN_HEIGHT / 2
+            x = (point[0] * CUBE_SCALE) + WIN_WIDTH / 2
+            y = (point[1] * CUBE_SCALE) + WIN_HEIGHT / 2
 
             points_pos.append((int(x), int(y))) # Keep track of the points position
 
