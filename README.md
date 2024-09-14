@@ -1,5 +1,5 @@
 # Rotating Cube
-## How to install?
+## How to install
 1. Clone the github repo
 2. Install the following modules: pygame, numpy
 3. Run the main.py file
