@@ -1,7 +1,6 @@
 import numpy as np
 
 WIN_WIDTH, WIN_HEIGHT = 1200, 800
-CUBE_SCALE = 120
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)

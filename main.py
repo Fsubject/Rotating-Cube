@@ -1,25 +1,26 @@
 import numpy as np
-import math
 import pygame
+from pygame.transform import scale
+
 from settings import *
 
 
 def create_rotations_matrices(angle_x, angle_y, angle_z):
     rotation_x_matrix = np.array([
         [1, 0, 0],
-        [0, math.cos(angle_x), -math.sin(angle_x)],
-        [0, math.sin(angle_x), math.cos(angle_x)],
+        [0, np.cos(angle_x), -np.sin(angle_x)],
+        [0, np.sin(angle_x), np.cos(angle_x)],
     ])
 
     rotation_y_matrix = np.array([
-        [math.cos(angle_y), 0, math.sin(angle_y)],
+        [np.cos(angle_y), 0, np.sin(angle_y)],
         [0, 1, 0],
-        [-math.sin(angle_y), 0, math.cos(angle_y)],
+        [-np.sin(angle_y), 0, np.cos(angle_y)],
     ])
 
     rotation_z_matrix = np.array([
-        [math.cos(angle_z), -math.sin(angle_z), 0],
-        [math.sin(angle_z), math.cos(angle_z), 0],
+        [np.cos(angle_z), -np.sin(angle_z), 0],
+        [np.sin(angle_z), np.cos(angle_z), 0],
         [0, 0, 1],
     ])
 
@@ -56,6 +57,7 @@ def main():
 
     pygame.display.set_caption("Rotating cube")
 
+    cube_scale = 120
     angle_x = 0
     angle_y = 0
     angle_z = 0
@@ -70,7 +72,11 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+                if event.key == pygame.K_z:
+                    cube_scale += 10
+                elif event.key == pygame.K_s:
+                    cube_scale -= 10
+                elif event.key == pygame.K_UP:
                     rotation_speed += 0.01
                     rotation_speed += 0.01
                 elif event.key == pygame.K_DOWN:
@@ -89,12 +95,12 @@ def main():
         points_2d = np.dot(rotate_z, projection_matrix)
 
         print(points_2d)
-        print("\n")
+        print()
 
         points_pos = []
         for point in points_2d:
-            x = (point[0] * CUBE_SCALE) + WIN_WIDTH / 2
-            y = (point[1] * CUBE_SCALE) + WIN_HEIGHT / 2
+            x = (point[0] * cube_scale) + WIN_WIDTH / 2
+            y = (point[1] * cube_scale) + WIN_HEIGHT / 2
 
             points_pos.append((int(x), int(y))) # Keep track of the points position
 
@@ -104,6 +110,7 @@ def main():
 
         pygame.display.flip()
 
+    print("Exiting")
     pygame.quit()
 
 
