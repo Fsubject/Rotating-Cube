@@ -27,26 +27,26 @@ def create_rotations_matrices(angle_x, angle_y, angle_z):
     return rotation_x_matrix, rotation_y_matrix, rotation_z_matrix
 
 
-def connect_points(window, points_pos):
-    pygame.draw.line(window, GREEN, (points_pos[0][0], points_pos[0][1]), (points_pos[3][0], points_pos[3][1]))
-    pygame.draw.line(window, GREEN, (points_pos[7][0], points_pos[7][1]), (points_pos[4][0], points_pos[4][1]))
+def connect_vertices(window, model, vertices_pos):
+    if model == "cube":
+        pygame.draw.line(window, GREEN, (vertices_pos[0][0], vertices_pos[0][1]), (vertices_pos[3][0], vertices_pos[3][1]))
+        pygame.draw.line(window, GREEN, (vertices_pos[7][0], vertices_pos[7][1]), (vertices_pos[4][0], vertices_pos[4][1]))
 
-    for i in range(7):
-        pygame.draw.line(window, GREEN, (points_pos[i][0], points_pos[i][1]),
-                         (points_pos[i + 1][0], points_pos[i + 1][1]))
+        for i in range(7):
+            pygame.draw.line(window, GREEN, (vertices_pos[i][0], vertices_pos[i][1]), (vertices_pos[i + 1][0], vertices_pos[i + 1][1]))
 
-    pygame.draw.line(window, GREEN, (points_pos[0][0], points_pos[0][1]), (points_pos[7][0], points_pos[7][1]))
-    pygame.draw.line(window, GREEN, (points_pos[1][0], points_pos[1][1]), (points_pos[6][0], points_pos[6][1]))
-    pygame.draw.line(window, GREEN, (points_pos[2][0], points_pos[2][1]), (points_pos[5][0], points_pos[5][1]))
+        pygame.draw.line(window, GREEN, (vertices_pos[0][0], vertices_pos[0][1]), (vertices_pos[7][0], vertices_pos[7][1]))
+        pygame.draw.line(window, GREEN, (vertices_pos[1][0], vertices_pos[1][1]), (vertices_pos[6][0], vertices_pos[6][1]))
+        pygame.draw.line(window, GREEN, (vertices_pos[2][0], vertices_pos[2][1]), (vertices_pos[5][0], vertices_pos[5][1]))
+    elif model == "strange":
+        pygame.draw.lines(window, GREEN, True, (vertices_pos[:4]))
+        pygame.draw.lines(window, GREEN, True, (vertices_pos[:4]))
 
-    """pygame.draw.lines(window, GREEN, True, (points_pos[:4]))
-    pygame.draw.lines(window, GREEN, True, (points_pos[:4]))
+        for i in range(4):
+            pygame.draw.line(window, GREEN, (vertices_pos[i][0], vertices_pos[i][1]), (vertices_pos[4][0], vertices_pos[4][1]))
 
-    for i in range(4):
-        pygame.draw.line(window, GREEN, (points_pos[i][0], points_pos[i][1]), (points_pos[4][0], points_pos[4][1]))
-
-    for i in range(4):
-        pygame.draw.line(window, GREEN, (points_pos[i][0], points_pos[i][1]), (points_pos[5][0], points_pos[5][1]))"""
+        for i in range(4):
+            pygame.draw.line(window, GREEN, (vertices_pos[i][0], vertices_pos[i][1]), (vertices_pos[5][0], vertices_pos[5][1]))
 
     # https://technology.cpm.org/general/3dgraph/
 
@@ -63,30 +63,37 @@ def main():
 
     # Font settings / texts
     nice_font = pygame.font.Font("resources/Silkscreen-Regular.ttf", 25)
-    controls = [nice_font.render("[C] Toggle cube points", False, GREEN),
+
+    controls = [nice_font.render("[C] Toggle figure vertices", False, GREEN),
                 nice_font.render("[UP] Increase rotation speed", False, GREEN),
                 nice_font.render("[DOWN] Decrease rotation speed", False, GREEN),
-                nice_font.render("[Z] Scale up cube", False, GREEN),
-                nice_font.render("[S] Scale down cube", False, GREEN)]
+                nice_font.render("[Z] Scale up figure", False, GREEN),
+                nice_font.render("[S] Scale down figure", False, GREEN),
+                nice_font.render("[W] Switch to another figure", False, GREEN)]
 
     # Cube settings
     cube_scale = 120
-    toggle_draw_point = True
+    show_vertices = True
     angle_x = 0
     angle_y = 0
     angle_z = 0
     rotation_speed = 0
+    model = "cube"
 
     while running:
         clock.tick(60)
         window.fill(BLACK)
+
+        fps_text = nice_font.render(str(round(clock.get_fps())), False, GREEN)
 
         # Check for pygame event #
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_z:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                elif event.key == pygame.K_z:
                     cube_scale += 10
                 elif event.key == pygame.K_s:
                     cube_scale -= 10
@@ -97,41 +104,57 @@ def main():
                     rotation_speed -= 0.01
                     rotation_speed -= 0.01
                 elif event.key == pygame.K_c:
-                    if toggle_draw_point:
-                        toggle_draw_point = False
+                    if show_vertices:
+                        show_vertices = False
                     else:
-                        toggle_draw_point = True
+                        show_vertices = True
+                elif event.key == pygame.K_w:
+                    if model == "cube":
+                        model = "strange"
+                    elif model == "strange":
+                        model = "cube"
 
         rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = create_rotations_matrices(angle_x, angle_y, angle_z)
+
+        # All changes in the 3D space (rotation, scale, ...) are done by multiplying the object vertices with a matrix
+        # Vertices' = Vertices x Matrix
 
         angle_x += rotation_speed
         angle_y += rotation_speed
 
-        rotate_x = np.dot(model, rotation_x_matrix)
+        if model == "cube":
+            rotate_x = np.dot(CUBE_VERTICES, rotation_x_matrix)
+        elif model == "strange":
+            rotate_x = np.dot(STRANGE_VERTICES, rotation_x_matrix)
+        else:
+            rotate_x = np.dot(CUBE_VERTICES, rotation_x_matrix)
+
         rotate_y = np.dot(rotate_x, rotation_y_matrix)
         rotate_z = np.dot(rotate_y, rotation_z_matrix)
 
-        points_2d = np.dot(rotate_z, projection_matrix)
+        vertices_2d = np.dot(rotate_z, PROJECTION_MATRIX)
 
-        print(points_2d)
+        print(vertices_2d)
         print()
 
-        points_pos = []
-        for point in points_2d:
-            x = (point[0] * cube_scale) + WIN_WIDTH / 2
-            y = (point[1] * cube_scale) + WIN_HEIGHT / 2
+        vertices_pos = [] # WARNING: An objects in space is define by points called object vertices <----
+        for vertex in vertices_2d:
+            x = (vertex[0] * cube_scale) + WIN_WIDTH / 2
+            y = (vertex[1] * cube_scale) + WIN_HEIGHT / 2
 
-            points_pos.append((int(x), int(y)))  # Keep track of the points position
+            vertices_pos.append((int(x), int(y)))  # Keep track of the vertices position
 
-            if toggle_draw_point:
-                pygame.draw.circle(window, WHITE, (x, y), 3)  # Draw a point of the cube
+            if show_vertices:
+                pygame.draw.circle(window, WHITE, (x, y), 3)  # Draw a vertex of the cube
 
-        connect_points(window, points_pos)
+        connect_vertices(window, model, vertices_pos)
 
         i = 0
         for text in controls:
+            window.blit(text, (30, 20 + i))
             i += 30
-            window.blit(text, (40, 10 + i))
+
+        window.blit(fps_text, (1140, 20))
 
         pygame.display.flip()
 

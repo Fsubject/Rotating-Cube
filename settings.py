@@ -10,13 +10,13 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
 # Matrices
-projection_matrix = np.array([
+PROJECTION_MATRIX = np.array([
     [1, 0, 0],
     [0, 1, 0],
     [0, 0, 0],
 ])
 
-cube_matrix = np.array([ # All the cube points in a matrix created with numpy
+CUBE_VERTICES = np.array([ # All the cube points in a matrix created with numpy
     [-1, -1, 1],
     [1, -1, 1],
     [1, 1, 1],
@@ -28,7 +28,7 @@ cube_matrix = np.array([ # All the cube points in a matrix created with numpy
     [-1, -1, -1]
 ])
 
-pyramid_matrix = np.array([
+STRANGE_VERTICES = np.array([
     [-1, -1, 0],
     [1, -1, 0],
     [1, 1, 0],
@@ -36,5 +36,3 @@ pyramid_matrix = np.array([
     [0, 0, 2], # Pyramid top
     [0, 0, -2] # Pyramid bottom
 ])
-
-model = cube_matrix
