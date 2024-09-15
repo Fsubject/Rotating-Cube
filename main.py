@@ -29,20 +29,20 @@ def create_rotations_matrices(angle_x, angle_y, angle_z):
 
 
 def connect_points(window, points_pos):
-    pygame.draw.line(window, (0, 255, 0), (points_pos[0][0], points_pos[0][1]), (points_pos[3][0], points_pos[3][1]))
-    pygame.draw.line(window, (0, 255, 0), (points_pos[7][0], points_pos[7][1]), (points_pos[4][0], points_pos[4][1]))
+    pygame.draw.line(window, GREEN, (points_pos[0][0], points_pos[0][1]), (points_pos[3][0], points_pos[3][1]))
+    pygame.draw.line(window, GREEN, (points_pos[7][0], points_pos[7][1]), (points_pos[4][0], points_pos[4][1]))
 
     for i in range(7):
-        pygame.draw.line(window, (0, 255, 0), (points_pos[i][0], points_pos[i][1]), (points_pos[i + 1][0], points_pos[i + 1][1]))
+        pygame.draw.line(window, GREEN, (points_pos[i][0], points_pos[i][1]), (points_pos[i + 1][0], points_pos[i + 1][1]))
 
-    pygame.draw.line(window, (0, 255, 0), (points_pos[0][0], points_pos[0][1]), (points_pos[7][0], points_pos[7][1]))
-    pygame.draw.line(window, (0, 255, 0), (points_pos[1][0], points_pos[1][1]), (points_pos[6][0], points_pos[6][1]))
-    pygame.draw.line(window, (0, 255, 0), (points_pos[2][0], points_pos[2][1]), (points_pos[5][0], points_pos[5][1]))
+    pygame.draw.line(window, GREEN, (points_pos[0][0], points_pos[0][1]), (points_pos[7][0], points_pos[7][1]))
+    pygame.draw.line(window, GREEN, (points_pos[1][0], points_pos[1][1]), (points_pos[6][0], points_pos[6][1]))
+    pygame.draw.line(window, GREEN, (points_pos[2][0], points_pos[2][1]), (points_pos[5][0], points_pos[5][1]))
 
-    """pygame.draw.lines(window, (0, 255, 0), True, (points_pos[:4]))
+    """pygame.draw.lines(window, GREEN, True, (points_pos[:4]))
 
     for i in range(4):
-        pygame.draw.line(window, (0, 255, 0), (points_pos[i][0], points_pos[i][1]), (points_pos[4][0], points_pos[4][1]))"""
+        pygame.draw.line(window, GREEN, (points_pos[i][0], points_pos[i][1]), (points_pos[4][0], points_pos[4][1]))"""
 
     # https://technology.cpm.org/general/3dgraph/
 
@@ -59,27 +59,28 @@ def main():
     angle_x = 0
     angle_y = 0
     angle_z = 0
+    rotation_speed = 0
 
     while running:
         clock.tick(60)
-        window.fill((0, 0, 0))
+        window.fill(BLACK)
 
         # Check for pygame event #
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            """elif event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    angle_x += 0.01
-                    angle_y += 0.01
+                    rotation_speed += 0.01
+                    rotation_speed += 0.01
                 elif event.key == pygame.K_DOWN:
-                    angle_x -= 0.01
-                    angle_y -= 0.01"""
+                    rotation_speed -= 0.01
+                    rotation_speed -= 0.01
 
         rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = create_rotations_matrices(angle_x, angle_y, angle_z)
 
-        angle_x += 0.01
-        angle_y += 0.01
+        angle_x += rotation_speed
+        angle_y += rotation_speed
 
         rotate_x = np.dot(model, rotation_x_matrix)
         rotate_y = np.dot(rotate_x, rotation_y_matrix)
@@ -97,7 +98,7 @@ def main():
 
             points_pos.append((int(x), int(y))) # Keep track of the points position
 
-            pygame.draw.circle(window, (255, 255, 255), (x, y), 3) # Draw a point of the cube
+            pygame.draw.circle(window, WHITE, (x, y), 3) # Draw a point of the cube
 
         connect_points(window, points_pos)
 
