@@ -40,9 +40,13 @@ def connect_points(window, points_pos):
     pygame.draw.line(window, GREEN, (points_pos[2][0], points_pos[2][1]), (points_pos[5][0], points_pos[5][1]))
 
     """pygame.draw.lines(window, GREEN, True, (points_pos[:4]))
+    pygame.draw.lines(window, GREEN, True, (points_pos[:4]))
 
     for i in range(4):
-        pygame.draw.line(window, GREEN, (points_pos[i][0], points_pos[i][1]), (points_pos[4][0], points_pos[4][1]))"""
+        pygame.draw.line(window, GREEN, (points_pos[i][0], points_pos[i][1]), (points_pos[4][0], points_pos[4][1]))
+
+    for i in range(4):
+        pygame.draw.line(window, GREEN, (points_pos[i][0], points_pos[i][1]), (points_pos[5][0], points_pos[5][1]))"""
 
     # https://technology.cpm.org/general/3dgraph/
 
@@ -59,11 +63,11 @@ def main():
 
     # Font settings / texts
     nice_font = pygame.font.Font("resources/Silkscreen-Regular.ttf", 25)
-    texts = [nice_font.render("[C] Toggle cube points", False, GREEN),
-             nice_font.render("[UP] Increase rotation speed", False, GREEN),
-             nice_font.render("[DOWN] Decrease rotation speed", False, GREEN),
-             nice_font.render("[Z] Scale up cube", False, GREEN),
-             nice_font.render("[S] Scale down cube", False, GREEN)]
+    controls = [nice_font.render("[C] Toggle cube points", False, GREEN),
+                nice_font.render("[UP] Increase rotation speed", False, GREEN),
+                nice_font.render("[DOWN] Decrease rotation speed", False, GREEN),
+                nice_font.render("[Z] Scale up cube", False, GREEN),
+                nice_font.render("[S] Scale down cube", False, GREEN)]
 
     # Cube settings
     cube_scale = 120
@@ -125,7 +129,7 @@ def main():
         connect_points(window, points_pos)
 
         i = 0
-        for text in texts:
+        for text in controls:
             i += 30
             window.blit(text, (40, 10 + i))
 

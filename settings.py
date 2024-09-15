@@ -33,7 +33,8 @@ pyramid_matrix = np.array([
     [1, -1, 0],
     [1, 1, 0],
     [-1, 1, 0],
-    [0, 0, 2] # Pyramid top
+    [0, 0, 2], # Pyramid top
+    [0, 0, -2] # Pyramid bottom
 ])
 
 model = cube_matrix
