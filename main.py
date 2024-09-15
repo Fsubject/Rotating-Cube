@@ -1,6 +1,5 @@
 import numpy as np
 import pygame
-from pygame.transform import scale
 
 from settings import *
 
