@@ -1,7 +1,6 @@
 import numpy as np
 import pygame
 import settings
-from settings import CUBE_FACES
 
 
 def create_rotations_matrices(angle_x, angle_y, angle_z):
@@ -30,7 +29,7 @@ def create_rotations_matrices(angle_x, angle_y, angle_z):
 
 def connect_vertices(window, model, vertices_pos):
     if model == "cube":
-        for faces in settings.CUBE_FACES:
+        for faces in settings.CUBE["CUBE_FACES"]:
             pygame.draw.lines(window, settings.GREEN, True, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]], vertices_pos[faces[3]]), 2)
     elif model == "strange":
         pygame.draw.lines(window, settings.GREEN, True, (vertices_pos[:4]), 2)
@@ -134,18 +133,18 @@ def main():
 
         rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = create_rotations_matrices(angle_x, angle_y, angle_z)
 
-        # All changes in the 3D space (rotation, scale, ...) are done by multiplying the object vertices with a matrix
+        # All changes in the 3D space (rotation, scaling, ...) are done by multiplying the object vertices with a matrix
         # Vertices' = Vertices x Matrix
 
         angle_x += rotation_speed
         angle_y += rotation_speed
 
         if model == "cube":
-            rotate_x = np.dot(settings.CUBE_VERTICES, rotation_x_matrix)
+            rotate_x = np.dot(settings.CUBE["CUBE_VERTICES"], rotation_x_matrix)
         elif model == "strange":
             rotate_x = np.dot(settings.STRANGE_VERTICES, rotation_x_matrix)
         else:
-            rotate_x = np.dot(settings.CUBE_VERTICES, rotation_x_matrix)
+            rotate_x = np.dot(settings.CUBE["CUBE_VERTICES"], rotation_x_matrix)
 
         rotate_y = np.dot(rotate_x, rotation_y_matrix)
         rotate_z = np.dot(rotate_y, rotation_z_matrix)
