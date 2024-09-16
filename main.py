@@ -1,6 +1,7 @@
 import numpy as np
 import pygame
 import settings
+from settings import CUBE_FACES
 
 
 def create_rotations_matrices(angle_x, angle_y, angle_z):
@@ -29,6 +30,23 @@ def create_rotations_matrices(angle_x, angle_y, angle_z):
 
 def connect_vertices(window, model, vertices_pos):
     if model == "cube":
+        for faces in settings.CUBE_FACES:
+            pygame.draw.lines(window, settings.GREEN, True, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]], vertices_pos[faces[3]]), 2)
+    elif model == "strange":
+        pygame.draw.lines(window, settings.GREEN, True, (vertices_pos[:4]), 2)
+        pygame.draw.lines(window, settings.GREEN, True, (vertices_pos[:4]), 2)
+
+        for i in range(4):
+            pygame.draw.line(window, settings.GREEN, (vertices_pos[i][0], vertices_pos[i][1]),
+                             (vertices_pos[4][0], vertices_pos[4][1]), 2)
+
+        for i in range(4):
+            pygame.draw.line(window, settings.GREEN, (vertices_pos[i][0], vertices_pos[i][1]),
+                             (vertices_pos[5][0], vertices_pos[5][1]), 2)
+
+    # OLD SYSTEM
+
+    """if model == "cube":
         pygame.draw.line(window, settings.GREEN, (vertices_pos[0][0], vertices_pos[0][1]), (vertices_pos[3][0], vertices_pos[3][1]), 2)
         pygame.draw.line(window, settings.GREEN, (vertices_pos[7][0], vertices_pos[7][1]), (vertices_pos[4][0], vertices_pos[4][1]), 2)
 
@@ -46,7 +64,7 @@ def connect_vertices(window, model, vertices_pos):
             pygame.draw.line(window, settings.GREEN, (vertices_pos[i][0], vertices_pos[i][1]), (vertices_pos[4][0], vertices_pos[4][1]), 2)
 
         for i in range(4):
-            pygame.draw.line(window, settings.GREEN, (vertices_pos[i][0], vertices_pos[i][1]), (vertices_pos[5][0], vertices_pos[5][1]), 2)
+            pygame.draw.line(window, settings.GREEN, (vertices_pos[i][0], vertices_pos[i][1]), (vertices_pos[5][0], vertices_pos[5][1]), 2)"""
 
     # https://technology.cpm.org/general/3dgraph/
 

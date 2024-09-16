@@ -17,16 +17,25 @@ PROJECTION_MATRIX = np.array([
 ])
 
 CUBE_VERTICES = np.array([ # All the cube points in a matrix created with numpy
-    [-1, -1, 1],
+    [1, -1, -1],
     [1, -1, 1],
     [1, 1, 1],
-    [-1, 1, 1], # Top face
+    [1, 1, -1], # Front face
 
-    [-1, 1, -1], # Bottom face
-    [1, 1, -1],
-    [1, -1, -1],
-    [-1, -1, -1]
+    [-1, -1, -1], # Back faces
+    [-1, -1, 1],
+    [-1, 1, 1],
+    [-1, 1, -1]
 ])
+
+CUBE_FACES = [
+    [0, 1, 2, 3], # Front
+    [3, 2, 6, 7], # Right
+    [7, 4, 5, 6], # Middle
+    [0, 1, 5, 4], # Left
+    [0, 4, 7, 3], # Bottom
+    [1, 5, 6, 2]  # Top
+]
 
 STRANGE_VERTICES = np.array([
     [-1, -1, 0],
