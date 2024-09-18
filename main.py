@@ -2,6 +2,35 @@ import numpy as np
 import pygame
 import settings
 
+faces_s = []
+
+
+def import_obj_file():
+    global faces_s
+
+    with open("resources/cheese.obj", "r") as file:
+        vertices, faces_s = [], []
+
+        lines = file.read().splitlines()
+
+        for line in lines:
+            if line.startswith("v "):
+                sorted_line = line.split(" ")[1:]
+                vertices.append([float(sorted_line[0]), float(sorted_line[1]), float(sorted_line[2])])
+            elif line.startswith("f "):
+                temp_faces = []
+                sorted_line = line.split(" ")
+
+                for i in range(len(sorted_line)):
+                    sorted_face_index = sorted_line[i].split("/")[0]
+
+                    if sorted_face_index != "f":
+                        temp_faces.append(int(sorted_face_index) - 1)
+
+                faces_s.append(temp_faces)
+
+        return np.array(vertices)
+
 
 def create_rotations_matrices(angle_x, angle_y, angle_z):
     rotation_x_matrix = np.array([
@@ -28,42 +57,23 @@ def create_rotations_matrices(angle_x, angle_y, angle_z):
 
 
 def connect_vertices(window, model, vertices_pos):
+    global faces_s
+
     if model == "cube":
         for faces in settings.CUBE["CUBE_FACES"]:
-            pygame.draw.lines(window, settings.GREEN, True, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]], vertices_pos[faces[3]]), 2)
+            pygame.draw.polygon(window, settings.GREEN, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]], vertices_pos[faces[3]]), 2)
     elif model == "strange":
-        pygame.draw.lines(window, settings.GREEN, True, (vertices_pos[:4]), 2)
-        pygame.draw.lines(window, settings.GREEN, True, (vertices_pos[:4]), 2)
-
-        for i in range(4):
-            pygame.draw.line(window, settings.GREEN, (vertices_pos[i][0], vertices_pos[i][1]),
-                             (vertices_pos[4][0], vertices_pos[4][1]), 2)
-
-        for i in range(4):
-            pygame.draw.line(window, settings.GREEN, (vertices_pos[i][0], vertices_pos[i][1]),
-                             (vertices_pos[5][0], vertices_pos[5][1]), 2)
-
-    # OLD SYSTEM
-
-    """if model == "cube":
-        pygame.draw.line(window, settings.GREEN, (vertices_pos[0][0], vertices_pos[0][1]), (vertices_pos[3][0], vertices_pos[3][1]), 2)
-        pygame.draw.line(window, settings.GREEN, (vertices_pos[7][0], vertices_pos[7][1]), (vertices_pos[4][0], vertices_pos[4][1]), 2)
-
-        for i in range(7):
-            pygame.draw.line(window, settings.GREEN, (vertices_pos[i][0], vertices_pos[i][1]), (vertices_pos[i + 1][0], vertices_pos[i + 1][1]), 2)
-
-        pygame.draw.line(window, settings.GREEN, (vertices_pos[0][0], vertices_pos[0][1]), (vertices_pos[7][0], vertices_pos[7][1]), 2)
-        pygame.draw.line(window, settings.GREEN, (vertices_pos[1][0], vertices_pos[1][1]), (vertices_pos[6][0], vertices_pos[6][1]), 2)
-        pygame.draw.line(window, settings.GREEN, (vertices_pos[2][0], vertices_pos[2][1]), (vertices_pos[5][0], vertices_pos[5][1]), 2)
-    elif model == "strange":
-        pygame.draw.lines(window, settings.GREEN, True, (vertices_pos[:4]), 2)
-        pygame.draw.lines(window, settings.GREEN, True, (vertices_pos[:4]), 2)
-
-        for i in range(4):
-            pygame.draw.line(window, settings.GREEN, (vertices_pos[i][0], vertices_pos[i][1]), (vertices_pos[4][0], vertices_pos[4][1]), 2)
-
-        for i in range(4):
-            pygame.draw.line(window, settings.GREEN, (vertices_pos[i][0], vertices_pos[i][1]), (vertices_pos[5][0], vertices_pos[5][1]), 2)"""
+        for faces in settings.S_PYRAMID["S_PYRAMID_FACES"]:
+            if len(faces) == 4:
+                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]], vertices_pos[faces[3]]), 2)
+            elif len(faces) == 3:
+                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]]), 2)
+    elif model == "custom":
+        for faces in faces_s:
+            if len(faces) == 4:
+                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]], vertices_pos[faces[3]]), 2)
+            elif len(faces) == 3:
+                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]]), 2)
 
     # https://technology.cpm.org/general/3dgraph/
 
@@ -97,6 +107,8 @@ def main():
     rotation_speed = 0
     model = "cube"
 
+    vertices = import_obj_file()
+
     while running:
         clock.tick(60)
         window.fill(settings.BLACK)
@@ -111,14 +123,12 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.key == pygame.K_z:
-                    cube_scale += 10
+                    cube_scale += 20
                 elif event.key == pygame.K_s:
-                    cube_scale -= 10
+                    cube_scale -= 20
                 elif event.key == pygame.K_UP:
                     rotation_speed += 0.01
-                    rotation_speed += 0.01
                 elif event.key == pygame.K_DOWN:
-                    rotation_speed -= 0.01
                     rotation_speed -= 0.01
                 elif event.key == pygame.K_c:
                     if show_vertices:
@@ -129,7 +139,15 @@ def main():
                     if model == "cube":
                         model = "strange"
                     elif model == "strange":
+                        model = "custom"
+                    elif model == "custom":
                         model = "cube"
+                elif event.key == pygame.K_r:
+                    rotation_speed = 0
+                    cube_scale = 120
+                    angle_x = 0
+                    angle_y = 0
+                    angle_z = 0
 
         rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = create_rotations_matrices(angle_x, angle_y, angle_z)
 
@@ -142,7 +160,9 @@ def main():
         if model == "cube":
             rotate_x = np.dot(settings.CUBE["CUBE_VERTICES"], rotation_x_matrix)
         elif model == "strange":
-            rotate_x = np.dot(settings.STRANGE_VERTICES, rotation_x_matrix)
+            rotate_x = np.dot(settings.S_PYRAMID["S_PYRAMID_VERTICES"], rotation_x_matrix)
+        elif model == "custom":
+            rotate_x = np.dot(vertices, rotation_x_matrix)
         else:
             rotate_x = np.dot(settings.CUBE["CUBE_VERTICES"], rotation_x_matrix)
 
@@ -150,9 +170,6 @@ def main():
         rotate_z = np.dot(rotate_y, rotation_z_matrix)
 
         vertices_2d = np.dot(rotate_z, settings.PROJECTION_MATRIX)
-
-        print(vertices_2d)
-        print()
 
         vertices_pos = [] # WARNING: An objects in space is define by points called object vertices <----
         for vertex in vertices_2d:
@@ -162,7 +179,7 @@ def main():
             vertices_pos.append((int(x), int(y)))  # Keep track of the vertices position
 
             if show_vertices:
-                pygame.draw.circle(window, settings.WHITE, (x, y), 3)  # Draw a vertex of the cube
+                pygame.draw.circle(window, settings.WHITE, (x, y), 4)  # Draw a vertex of the cube
 
         connect_vertices(window, model, vertices_pos)
 

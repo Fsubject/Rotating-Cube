@@ -6,7 +6,6 @@ WIN_WIDTH, WIN_HEIGHT = 1200, 800
 # Color
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
 # Matrices
@@ -16,6 +15,7 @@ PROJECTION_MATRIX = np.array([
     [0, 0, 0],
 ])
 
+# Example figure
 CUBE = {
     "CUBE_VERTICES": np.array([ # All the cube points in a matrix created with numpy
         [1, -1, -1],
@@ -38,11 +38,24 @@ CUBE = {
     ]
 }
 
-STRANGE_VERTICES = np.array([
-    [-1, -1, 0],
-    [1, -1, 0],
-    [1, 1, 0],
-    [-1, 1, 0],
-    [0, 0, 2], # Pyramid top
-    [0, 0, -2] # Pyramid bottom
-])
+S_PYRAMID = {
+    "S_PYRAMID_VERTICES": np.array([
+        [-1, -1, 0],
+        [1, -1, 0],
+        [1, 1, 0],
+        [-1, 1, 0],
+        [0, 0, 2], # Pyramid top
+        [0, 0, -2] # Pyramid bottom
+    ]),
+    "S_PYRAMID_FACES": [
+        [0, 1, 2, 3],
+        [0, 1, 4],
+        [0, 1, 5],
+        [1, 2, 4],
+        [1, 2, 5],
+        [2, 3, 4],
+        [2, 3, 5],
+        [3, 0, 4],
+        [3, 0, 5]
+    ]
+}
