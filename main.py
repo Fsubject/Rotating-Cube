@@ -1,15 +1,30 @@
 import numpy as np
 import pygame
+import os
 import settings
+from object import Object
 
-faces_s = []
+
+def retrieve_models(directory):
+    models_vertices = {}
+    models_faces = {}
+    list_models = []
+
+    for file in os.listdir(directory):
+        if file.endswith(".obj"):
+            list_models.append(file.split(".")[0])
+
+    for model_file_name in list_models:
+        vertices, faces = import_obj_file(model_file_name)
+        models_vertices[model_file_name] = vertices
+        models_faces[model_file_name] = faces
+
+    return models_vertices, models_faces, list_models
 
 
-def import_obj_file():
-    global faces_s
-
-    with open("resources/cheese.obj", "r") as file:
-        vertices, faces_s = [], []
+def import_obj_file(file_name):
+    with open(f"resources/{file_name}.obj", "r") as file:
+        vertices, faces = [], []
 
         lines = file.read().splitlines()
 
@@ -27,55 +42,9 @@ def import_obj_file():
                     if sorted_face_index != "f":
                         temp_faces.append(int(sorted_face_index) - 1)
 
-                faces_s.append(temp_faces)
+                faces.append(temp_faces)
 
-        return np.array(vertices)
-
-
-def create_rotations_matrices(angle_x, angle_y, angle_z):
-    rotation_x_matrix = np.array([
-        [1, 0, 0],
-        [0, np.cos(angle_x), -np.sin(angle_x)],
-        [0, np.sin(angle_x), np.cos(angle_x)],
-    ])
-
-    rotation_y_matrix = np.array([
-        [np.cos(angle_y), 0, np.sin(angle_y)],
-        [0, 1, 0],
-        [-np.sin(angle_y), 0, np.cos(angle_y)],
-    ])
-
-    rotation_z_matrix = np.array([
-        [np.cos(angle_z), -np.sin(angle_z), 0],
-        [np.sin(angle_z), np.cos(angle_z), 0],
-        [0, 0, 1],
-    ])
-
-    # https://en.wikipedia.org/wiki/Rotation_matrix#Basic_3D_rotations
-
-    return rotation_x_matrix, rotation_y_matrix, rotation_z_matrix
-
-
-def connect_vertices(window, model, vertices_pos):
-    global faces_s
-
-    if model == "cube":
-        for faces in settings.CUBE["CUBE_FACES"]:
-            pygame.draw.polygon(window, settings.GREEN, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]], vertices_pos[faces[3]]), 2)
-    elif model == "strange":
-        for faces in settings.S_PYRAMID["S_PYRAMID_FACES"]:
-            if len(faces) == 4:
-                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]], vertices_pos[faces[3]]), 2)
-            elif len(faces) == 3:
-                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]]), 2)
-    elif model == "custom":
-        for faces in faces_s:
-            if len(faces) == 4:
-                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]], vertices_pos[faces[3]]), 2)
-            elif len(faces) == 3:
-                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[faces[0]], vertices_pos[faces[1]], vertices_pos[faces[2]]), 2)
-
-    # https://technology.cpm.org/general/3dgraph/
+        return np.array(vertices), faces
 
 
 def main():
@@ -98,24 +67,20 @@ def main():
                 nice_font.render("[S] Scale down figure", False, settings.GREEN),
                 nice_font.render("[W] Switch to another figure", False, settings.GREEN)]
 
-    # Cube settings
-    cube_scale = 120
-    show_vertices = True
-    angle_x = 0
-    angle_y = 0
-    angle_z = 0
-    rotation_speed = 0
-    model = "cube"
+    # Model
+    models_vertices, models_faces, list_models = retrieve_models("resources")
 
-    vertices = import_obj_file()
+    object_ = Object("cube", models_vertices["cube"], models_faces["cube"])
+
+    # Settings
+    show_vertices = True
 
     while running:
         clock.tick(60)
         window.fill(settings.BLACK)
-
         fps_text = nice_font.render(str(round(clock.get_fps())), False, settings.GREEN)
 
-        # Check for pygame event #
+        # Check for pygame event
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -123,66 +88,38 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.key == pygame.K_z:
-                    cube_scale += 20
+                    object_.scale += 20
                 elif event.key == pygame.K_s:
-                    cube_scale -= 20
+                    object_.scale -= 20
                 elif event.key == pygame.K_UP:
-                    rotation_speed += 0.01
+                    object_.rotation_speed += 0.01
                 elif event.key == pygame.K_DOWN:
-                    rotation_speed -= 0.01
+                    object_.rotation_speed -= 0.01
                 elif event.key == pygame.K_c:
                     if show_vertices:
                         show_vertices = False
                     else:
                         show_vertices = True
                 elif event.key == pygame.K_w:
-                    if model == "cube":
-                        model = "strange"
-                    elif model == "strange":
-                        model = "custom"
-                    elif model == "custom":
-                        model = "cube"
+                    for i in range(len(list_models)):
+                        if list_models[i] == object_.name:
+                            if list_models[i] == list_models[-1]:
+                                object_ = Object(list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]])
+                            else:
+                                object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]])
+                                break
+                        else:
+                            i += 1
                 elif event.key == pygame.K_r:
-                    rotation_speed = 0
-                    cube_scale = 120
-                    angle_x = 0
-                    angle_y = 0
-                    angle_z = 0
+                    object_.reset()
 
-        rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = create_rotations_matrices(angle_x, angle_y, angle_z)
+        # Project object_
+        object_.project(window, object_.scale, show_vertices)
 
-        # All changes in the 3D space (rotation, scaling, ...) are done by multiplying the object vertices with a matrix
-        # Vertices' = Vertices x Matrix
+        object_.angle_x += object_.rotation_speed
+        object_.angle_y += object_.rotation_speed
 
-        angle_x += rotation_speed
-        angle_y += rotation_speed
-
-        if model == "cube":
-            rotate_x = np.dot(settings.CUBE["CUBE_VERTICES"], rotation_x_matrix)
-        elif model == "strange":
-            rotate_x = np.dot(settings.S_PYRAMID["S_PYRAMID_VERTICES"], rotation_x_matrix)
-        elif model == "custom":
-            rotate_x = np.dot(vertices, rotation_x_matrix)
-        else:
-            rotate_x = np.dot(settings.CUBE["CUBE_VERTICES"], rotation_x_matrix)
-
-        rotate_y = np.dot(rotate_x, rotation_y_matrix)
-        rotate_z = np.dot(rotate_y, rotation_z_matrix)
-
-        vertices_2d = np.dot(rotate_z, settings.PROJECTION_MATRIX)
-
-        vertices_pos = [] # WARNING: An objects in space is define by points called object vertices <----
-        for vertex in vertices_2d:
-            x = (vertex[0] * cube_scale) + settings.WIN_WIDTH / 2
-            y = (vertex[1] * cube_scale) + settings.WIN_HEIGHT / 2
-
-            vertices_pos.append((int(x), int(y)))  # Keep track of the vertices position
-
-            if show_vertices:
-                pygame.draw.circle(window, settings.WHITE, (x, y), 4)  # Draw a vertex of the cube
-
-        connect_vertices(window, model, vertices_pos)
-
+        # Attach texts to the screen
         i = 0
         for text in controls:
             window.blit(text, (30, 20 + i))
@@ -199,4 +136,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Made by me (Fsubject)
+# Made 100% by Fsubject
