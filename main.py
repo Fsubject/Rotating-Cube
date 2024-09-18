@@ -11,14 +11,21 @@ def retrieve_obj_files(directory):
     list_models = []
 
     for file in os.listdir(directory):
+        print(file)
         if file.endswith(".obj"):
-            list_models.append(file.split(".")[0])
+            if file == "cube.obj":
+                list_models.insert(0, file.split(".")[0])
+            elif file == "pyramid.obj":
+                list_models.insert(1, file.split(".")[0])
+            else:
+                list_models.append(file.split(".")[0])
 
     for model_file_name in list_models:
         vertices, faces = import_obj_file(model_file_name)
         models_vertices[model_file_name] = vertices
         models_faces[model_file_name] = faces
 
+    print()
     return models_vertices, models_faces, list_models
 
 
@@ -44,12 +51,16 @@ def import_obj_file(file_name):
 
                 faces.append(temp_faces)
 
+        print(f"{file_name}.obj has been loaded ({len(vertices)} vertices, {len(faces)} faces)")
+
         return np.array(vertices), faces
 
 
 def main():
     pygame.init()
     pygame.font.init()
+
+    print()
 
     window = pygame.display.set_mode((settings.WIN_WIDTH, settings.WIN_HEIGHT))
     clock = pygame.time.Clock()
