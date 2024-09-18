@@ -1,6 +1,6 @@
 # Rotating Cube
 
-![image](resources/1.png)
+![image](https://github.com/user-attachments/assets/c19bdf7d-a50b-4493-b1b4-7becd1c5a310)
 
 ## How to install
 1. Clone the github repo
