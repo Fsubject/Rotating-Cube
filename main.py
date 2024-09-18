@@ -1,3 +1,4 @@
+# Made entirely by Fsubject
 import numpy as np
 import pygame
 import os
@@ -11,7 +12,6 @@ def retrieve_obj_files(directory):
     list_models = []
 
     for file in os.listdir(directory):
-        print(file)
         if file.endswith(".obj"):
             if file == "cube.obj":
                 list_models.insert(0, file.split(".")[0])
@@ -46,7 +46,7 @@ def import_obj_file(file_name):
                 for i in range(len(sorted_line)):
                     sorted_face_index = sorted_line[i].split("/")[0]
 
-                    if sorted_face_index != "f":
+                    if sorted_face_index != "f" and sorted_face_index != "":
                         temp_faces.append(int(sorted_face_index) - 1)
 
                 faces.append(temp_faces)
@@ -112,6 +112,7 @@ def main():
                         if list_models[i] == object_.name:
                             if list_models[i] == list_models[-1]:
                                 object_ = Object(list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]])
+                                break
                             else:
                                 object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]])
                                 break
@@ -131,7 +132,7 @@ def main():
                     object_.reset()
 
         # Project object_
-        object_.project(window, object_.scale, show_vertices)
+        object_.project(window, show_vertices)
 
         object_.angle_x += object_.rotation_speed
         object_.angle_y += object_.rotation_speed
@@ -154,4 +155,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Made 100% by Fsubject
+# Made entirely by Fsubject
