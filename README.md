@@ -6,6 +6,7 @@
 1. Clone the github repo
 2. Install the following modules: *pygame*, *numpy*
 3. Run the *main.py* file
+4. If you want to add any 3d model, just drag & drop the *.obj* file into the *resources* directory
 
 ## Recommended models
 Don't take too big models obviously it's a very small engine.  
