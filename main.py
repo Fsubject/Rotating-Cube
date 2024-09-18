@@ -5,7 +5,7 @@ import settings
 from object import Object
 
 
-def retrieve_models(directory):
+def retrieve_obj_files(directory):
     models_vertices = {}
     models_faces = {}
     list_models = []
@@ -68,12 +68,13 @@ def main():
                 nice_font.render("[W] Switch to another figure", False, settings.GREEN)]
 
     # Model
-    models_vertices, models_faces, list_models = retrieve_models("resources")
+    models_vertices, models_faces, list_models = retrieve_obj_files("resources")
 
     object_ = Object("cube", models_vertices["cube"], models_faces["cube"])
 
     # Settings
     show_vertices = True
+    show_controls = True
 
     while running:
         clock.tick(60)
@@ -95,11 +96,6 @@ def main():
                     object_.rotation_speed += 0.01
                 elif event.key == pygame.K_DOWN:
                     object_.rotation_speed -= 0.01
-                elif event.key == pygame.K_c:
-                    if show_vertices:
-                        show_vertices = False
-                    else:
-                        show_vertices = True
                 elif event.key == pygame.K_w:
                     for i in range(len(list_models)):
                         if list_models[i] == object_.name:
@@ -110,6 +106,16 @@ def main():
                                 break
                         else:
                             i += 1
+                elif event.key == pygame.K_c:
+                    if show_vertices:
+                        show_vertices = False
+                    else:
+                        show_vertices = True
+                elif event.key == pygame.K_F1:
+                    if show_controls:
+                        show_controls = False
+                    else:
+                        show_controls = True
                 elif event.key == pygame.K_r:
                     object_.reset()
 
@@ -120,10 +126,11 @@ def main():
         object_.angle_y += object_.rotation_speed
 
         # Attach texts to the screen
-        i = 0
-        for text in controls:
-            window.blit(text, (30, 20 + i))
-            i += 30
+        if show_controls:
+            i = 0
+            for text in controls:
+                window.blit(text, (30, 20 + i))
+                i += 30
 
         window.blit(fps_text, (1140, 20))
 
