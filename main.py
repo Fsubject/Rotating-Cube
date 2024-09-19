@@ -21,7 +21,7 @@ def retrieve_obj_files(directory):
                 list_models.append(file.split(".")[0])
 
     for model_file_name in list_models:
-        vertices, faces = import_obj_file(model_file_name)
+        vertices, faces = sort_obj_file(model_file_name)
         models_vertices[model_file_name] = vertices
         models_faces[model_file_name] = faces
 
@@ -29,7 +29,7 @@ def retrieve_obj_files(directory):
     return models_vertices, models_faces, list_models
 
 
-def import_obj_file(file_name):
+def sort_obj_file(file_name):
     with open(f"resources/{file_name}.obj", "r") as file:
         vertices, faces = [], []
 
@@ -68,15 +68,17 @@ def main():
 
     pygame.display.set_caption("Rotating cube")
 
-    # Font settings / texts
-    nice_font = pygame.font.Font("resources/Silkscreen-Regular.ttf", 25)
+    # Init fonts
+    mid_font = pygame.font.Font("resources/Silkscreen-Regular.ttf", 25)
+    small_font = pygame.font.Font("resources/Silkscreen-Regular.ttf", 14)
 
-    controls = [nice_font.render("[C] Toggle figure vertices", False, settings.GREEN),
-                nice_font.render("[UP] Increase rotation speed", False, settings.GREEN),
-                nice_font.render("[DOWN] Decrease rotation speed", False, settings.GREEN),
-                nice_font.render("[Z] Scale up figure", False, settings.GREEN),
-                nice_font.render("[S] Scale down figure", False, settings.GREEN),
-                nice_font.render("[W] Switch to another figure", False, settings.GREEN)]
+    # Render static texts
+    controls = [mid_font.render("[C] Toggle figure vertices", False, settings.GREEN),
+                mid_font.render("[UP] Increase rotation speed", False, settings.GREEN),
+                mid_font.render("[DOWN] Decrease rotation speed", False, settings.GREEN),
+                mid_font.render("[Z] Scale up figure", False, settings.GREEN),
+                mid_font.render("[S] Scale down figure", False, settings.GREEN),
+                mid_font.render("[W] Switch to another figure", False, settings.GREEN)]
 
     # Model
     models_vertices, models_faces, list_models = retrieve_obj_files("resources")
@@ -88,9 +90,12 @@ def main():
     show_controls = True
 
     while running:
-        clock.tick(60)
+        clock.tick(settings.MAX_FRAMERATE)
         window.fill(settings.BLACK)
-        fps_text = nice_font.render(str(round(clock.get_fps())), False, settings.GREEN)
+
+        # Render dynamic texts
+        fps_text = mid_font.render(str(round(clock.get_fps())), False, settings.GREEN)
+        loaded_text = small_font.render(f"Currently loaded: {object_.name}.obj", False, settings.GREEN)
 
         # Check for pygame event
         for event in pygame.event.get():
@@ -131,7 +136,7 @@ def main():
                 elif event.key == pygame.K_r:
                     object_.reset()
 
-        # Project object_
+        # Project object_ on the screen
         object_.project(window, show_vertices)
 
         object_.angle_x += object_.rotation_speed
@@ -141,10 +146,11 @@ def main():
         if show_controls:
             i = 0
             for text in controls:
-                window.blit(text, (30, 20 + i))
+                window.blit(text, (20, 20 + i))
                 i += 30
 
         window.blit(fps_text, (1140, 20))
+        window.blit(loaded_text, (20, 760))
 
         pygame.display.flip()
 

@@ -35,7 +35,6 @@ class Object:
         self.vertices = vertices
         self.faces = faces
         self.name = name
-        self.vertices_pos = []
 
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0
         self.scale = 120
@@ -58,22 +57,20 @@ class Object:
         multiplied_vertices = np.dot(rotate_z, settings.PROJECTION_MATRIX)
 
         # WARNING: An objects in space is define by points called object vertices <----
-        self.vertices_pos = []
+        vertices_pos = []
         for vertex in multiplied_vertices:
             x = (vertex[0] * self.scale) + settings.WIN_WIDTH / 2 # PROBLEM: when a model is too big, scale it down isn't enough because it reverses
             y = (vertex[1] * self.scale) + settings.WIN_HEIGHT / 2         # at some point
 
-            self.vertices_pos.append((float(x), float(y)))  # Keep track of the vertices position
+            vertices_pos.append((float(x), float(y)))  # Keep track of the vertices position
 
             if show_vertices:
                 pygame.draw.circle(window, settings.WHITE, (x, y), 4)  # Draw a vertex (a point) of the cube
 
         for face in self.faces:
             if len(face) == 4:
-                pygame.draw.polygon(window, settings.GREEN, (
-                    self.vertices_pos[face[0]], self.vertices_pos[face[1]], self.vertices_pos[face[2]], self.vertices_pos[face[3]]), 2)
+                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[face[0]], vertices_pos[face[1]], vertices_pos[face[2]], vertices_pos[face[3]]), 2)
             elif len(face) == 3:
-                pygame.draw.polygon(window, settings.GREEN, (
-                    self.vertices_pos[face[0]], self.vertices_pos[face[1]], self.vertices_pos[face[2]]), 2)
+                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[face[0]], vertices_pos[face[1]], vertices_pos[face[2]]), 2)
 
         # https://technology.cpm.org/general/3dgraph/
