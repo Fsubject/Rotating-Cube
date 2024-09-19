@@ -2,6 +2,6 @@
 1. Save each object's actual settings (scale, rotation_speed, position, etc.) after changing to another object
    so when I go back to the object, it will be the same as I left it.
 
-2. Be able to scale down more for the bigger models (like the truck.obj)
+2. Be able to scale down more for the bigger models (like the truck.obj) // update: I added a temporary fix that probably only works for the truck
 
 3. more...

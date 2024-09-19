@@ -105,9 +105,11 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.key == pygame.K_z:
-                    object_.scale += 20
+                    object_.scale += 10
                 elif event.key == pygame.K_s:
-                    object_.scale -= 20
+                    object_.scale -= 10
+                    if object_.scale == 0:
+                        object_.scale += 1
                 elif event.key == pygame.K_UP:
                     object_.rotation_speed += 0.01
                 elif event.key == pygame.K_DOWN:
