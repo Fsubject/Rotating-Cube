@@ -36,24 +36,55 @@ def sort_obj_file(file_name):
         lines = file.read().splitlines()
 
         for line in lines:
-            if line.startswith("v "):
+            if line.startswith("v "): # sorting v lines (vertex)
                 sorted_line = line.split(" ")[1:]
                 vertices.append([float(sorted_line[0]), float(sorted_line[1]), float(sorted_line[2])])
-            elif line.startswith("f "):
+            elif line.startswith("f "): # sorting f lines (faces)
                 temp_faces = []
                 sorted_line = line.split(" ")
 
                 for i in range(len(sorted_line)):
+                    #sorted_face_index = sorted_line[i]
                     sorted_face_index = sorted_line[i].split("/")[0]
 
                     if sorted_face_index != "f" and sorted_face_index != "":
                         temp_faces.append(int(sorted_face_index) - 1)
+            # Could also sort vt lines (vertex texture = the texture for each vertex)
+            # will be useful when adding texturing to my engine
 
                 faces.append(temp_faces)
 
-        print(f"{file_name}.obj has been loaded ({len(vertices)} vertices, {len(faces)} faces)")
+        print(f"resources/{file_name}.obj has been loaded ({len(vertices)} vertices, {len(faces)} faces)")
 
         return np.array(vertices), faces
+
+
+"""def object_coloring():
+    with open("resources/shotgun.mtl") as file:
+        
+
+        paragraph = file.read().split("newmtl")
+        for lines in paragraph:
+            if lines.startswith("#"):
+                paragraph.remove(lines)
+
+            sep_lines = lines.splitlines()
+
+            print(sep_lines)
+        print()
+        for line in lines:
+            #if line.startswith("Ka"):
+                #ambient_color.append(line.split(" ")[1:])
+            if line.startswith("Kd"):
+                diffuse_color[""]
+                #diffuse_color.append(line.split(" ")[1:])
+            #elif line.startswith("Ks"):
+                #specular_color.append(line.split(" ")[1:])
+
+        print(diffuse_color)
+
+        return diffuse_color
+    # https://en.wikipedia.org/wiki/UV_mapping"""
 
 
 def main():
@@ -64,7 +95,7 @@ def main():
 
     window = pygame.display.set_mode((settings.WIN_WIDTH, settings.WIN_HEIGHT))
     clock = pygame.time.Clock()
-    running = True
+    running = settings.RUN_LOOP
 
     pygame.display.set_caption("Rotating cube")
 
@@ -83,6 +114,13 @@ def main():
     # Model
     models_vertices, models_faces, list_models = retrieve_obj_files("resources")
 
+    """example_Kd = diffuse_color = { # Kd
+            "Brown_Shotgun01": [0.122139, 0.048172, 0.024158],
+            "Gray_Shotgun_01": [0.048172, 0.048172, 0.048172],
+            "White_Shotgun_01": [0.617207, 0.617207, 0.617207]
+        }"""
+
+    #object_ = Object("shotgun", models_vertices["shotgun"], models_faces["shotgun"], example_Kd)
     object_ = Object("cube", models_vertices["cube"], models_faces["cube"])
 
     # Settings
@@ -105,9 +143,9 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.key == pygame.K_z:
-                    object_.scale += 10
+                    object_.scale += 20
                 elif event.key == pygame.K_s:
-                    object_.scale -= 10
+                    object_.scale -= 20
                     if object_.scale == 0:
                         object_.scale += 1
                 elif event.key == pygame.K_UP:

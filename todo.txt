@@ -4,4 +4,17 @@
 
 2. Be able to scale down more for the bigger models (like the truck.obj) // update: I added a temporary fix that probably only works for the truck
 
-3. more...
+3. render the model colors using .obj's vt lines
+   how to: witch each .obj file comes a .mtl file, the .mtl file contains a line that starts with
+           "newmtl NAME" -> this line basically create a new material that the .obj file will be able to use
+                          the material define the color and other properties of the object.
+
+           now in the .obj file, there are lines that start with "usemtl NAME" -> this line tells the .obj file
+           which material he has to use for the following faces.
+
+           -> SEE shotgun.obj & shotgun.mtl for example
+           objective: render the shotgun model with the correct colors
+
+4. more...
+
+--> Still made by Fsubject

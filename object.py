@@ -4,7 +4,7 @@ import pygame
 
 
 def create_rotations_matrices(angle_x, angle_y, angle_z):
-    # All changes in the 3D space (rotation, scaling, ...) are done by multiplying the object vertices with a matrix
+    # All changes in the 3D space (rotation, scaling, ...) are done by multiplying the object vertices with a specific matrix
     # Vertices' = Vertices x Matrix
 
     rotation_x_matrix = np.array([
@@ -40,6 +40,9 @@ class Object:
         self.scale = 120
         self.rotation_speed = 0
 
+        # Test
+        #self.Kd = Kd
+
     def reset(self):
         self.scale = 120
         self.rotation_speed = 0
@@ -72,5 +75,13 @@ class Object:
                 pygame.draw.polygon(window, settings.GREEN, (vertices_pos[face[0]], vertices_pos[face[1]], vertices_pos[face[2]], vertices_pos[face[3]]), 2)
             elif len(face) == 3:
                 pygame.draw.polygon(window, settings.GREEN, (vertices_pos[face[0]], vertices_pos[face[1]], vertices_pos[face[2]]), 2)
+
+            # Testing
+            """if len(face) == 4:
+                pygame.draw.polygon(window, (), (vertices_pos[face[0]], vertices_pos[face[1]], vertices_pos[face[2]], vertices_pos[face[3]]), 0)
+            elif len(face) == 3:
+                pygame.draw.polygon(window, (), (vertices_pos[face[0]], vertices_pos[face[1]], vertices_pos[face[2]]), 0)"""
+
+            # https://www.pygame.org/docs/ref/draw.html
 
         # https://technology.cpm.org/general/3dgraph/
