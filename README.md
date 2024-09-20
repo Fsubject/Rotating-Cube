@@ -10,7 +10,7 @@
 
 ## Recommended models
 Don't take too big models obviously it's a very small engine.  
-The most I used was a 913 vertices model with 950 faces, and it was running at 60fps (which the maximum).
+The biggest model I used was a 913 vertices model with 950 faces, and it was running at 60fps (which the maximum).
 
 ## Contribute
 I am *open* to contributions as long as you don't just break everything.
