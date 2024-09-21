@@ -163,7 +163,6 @@ cython_debug/
 
 # Custom for this project
 cheese.obj
-burger.obj
 pistol.obj
 truck.obj
 shotgun.obj

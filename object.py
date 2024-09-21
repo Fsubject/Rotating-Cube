@@ -3,7 +3,7 @@ import numpy as np
 import pygame
 
 
-def create_rotations_matrices(angle_x: float, angle_y: float, angle_z: float) -> tuple:
+def create_rotations_matrices(angle_x: float, angle_y: float, angle_z: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     # All changes in the 3D space (rotation, scaling, ...) are done by multiplying the object vertices with a specific matrix
     # Vertices' = Vertices x Matrix
 

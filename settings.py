@@ -13,7 +13,7 @@ WHITE = (255, 255, 255)
 
 # Static projection matrix
 PROJECTION_MATRIX = np.array([
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 0],
+    [1, 0, 0], # x
+    [0, 1, 0], # y
+    [0, 0, 0], # z
 ])

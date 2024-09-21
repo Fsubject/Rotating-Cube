@@ -15,8 +15,6 @@ def retrieve_obj_files(directory: str) -> tuple[dict, dict, list]:
         if file.endswith(".obj"):
             if file == "cube.obj":
                 list_models.insert(0, file.split(".")[0])
-            elif file == "pyramid.obj":
-                list_models.insert(1, file.split(".")[0])
             else:
                 list_models.append(file.split(".")[0])
 
@@ -99,27 +97,33 @@ def main() -> None:
     pygame.display.set_caption("Rotating cube")
 
     # Init fonts
-    mid_font = pygame.font.Font("resources/Silkscreen-Regular.ttf", 25)
-    small_font = pygame.font.Font("resources/Silkscreen-Regular.ttf", 14)
+    mid_font = pygame.font.Font("resources/font/Silkscreen-Regular.ttf", 25)
+    small_font = pygame.font.Font("resources/font/Silkscreen-Regular.ttf", 14)
 
     # Render static texts
+    """controls = [mid_font.render("[C] Toggle figure vertices", False, settings.GREEN),
+                mid_font.render("[UP - DOWN] Change rotation speed", False, settings.GREEN),
+                mid_font.render("[Z - S] Change figure scale", False, settings.GREEN),
+                mid_font.render("[W] Switch to another figure", False, settings.GREEN),
+                mid_font.render("[F1] Hide controls", False, settings.GREEN)]"""
     controls = [mid_font.render("[C] Toggle figure vertices", False, settings.GREEN),
                 mid_font.render("[UP] Increase rotation speed", False, settings.GREEN),
                 mid_font.render("[DOWN] Decrease rotation speed", False, settings.GREEN),
                 mid_font.render("[Z] Scale up figure", False, settings.GREEN),
                 mid_font.render("[S] Scale down figure", False, settings.GREEN),
-                mid_font.render("[W] Switch to another figure", False, settings.GREEN)]
+                mid_font.render("[W] Switch to another figure", False, settings.GREEN),
+                mid_font.render("[R] Reset figure settings", False, settings.GREEN)]
 
     # Model
     models_vertices, models_faces, list_models = retrieve_obj_files("resources")
 
-    """example_Kd = diffuse_color = { # Kd
+    """shotgun_testing_Kd = diffuse_color = { # Kd
             "Brown_Shotgun01": [0.122139, 0.048172, 0.024158], # Have to multiply each of these numbers by 255 because
             "Gray_Shotgun_01": [0.048172, 0.048172, 0.048172], # RGB colors are between 0-255 but in the .mtl they put
             "White_Shotgun_01": [0.617207, 0.617207, 0.617207] # the colors between 0-1
         }"""
 
-    #object_ = Object("shotgun", models_vertices["shotgun"], models_faces["shotgun"], example_Kd)
+    #object_ = Object("shotgun", models_vertices["shotgun"], models_faces["shotgun"], shotgun_testing_Kd)
     object_ = Object("cube", models_vertices["cube"], models_faces["cube"])
 
     # Settings
@@ -132,48 +136,49 @@ def main() -> None:
 
         # Render dynamic texts
         fps_text = mid_font.render(str(round(clock.get_fps())), False, settings.GREEN)
-        loaded_text = small_font.render(f"Currently loaded: {object_.name}.obj", False, settings.GREEN)
+        loaded_text = small_font.render(f"Current model: {object_.name}.obj", False, settings.GREEN)
 
         # Check for pygame event
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                elif event.key == pygame.K_z:
-                    object_.scale += 20
-                elif event.key == pygame.K_s:
-                    object_.scale -= 20
-                    if object_.scale == 0:
-                        object_.scale += 1
-                elif event.key == pygame.K_UP:
-                    object_.rotation_speed += 0.01
-                elif event.key == pygame.K_DOWN:
-                    object_.rotation_speed -= 0.01
-                elif event.key == pygame.K_w:
-                    for i in range(len(list_models)):
-                        if list_models[i] == object_.name:
-                            if list_models[i] == list_models[-1]:
-                                object_ = Object(list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]])
-                                break
+                match event.key: # Faster than if/elif/else
+                    case pygame.K_ESCAPE:
+                        running = False
+                    case pygame.K_z:
+                        object_.scale += 20
+                    case pygame.K_s:
+                        object_.scale -= 20
+                        if object_.scale == 0:
+                            object_.scale += 1
+                    case pygame.K_UP:
+                        object_.rotation_speed += 0.01
+                    case pygame.K_DOWN:
+                        object_.rotation_speed -= 0.01
+                    case pygame.K_w:
+                        for i in range(len(list_models)):
+                            if list_models[i] == object_.name:
+                                if list_models[i] == list_models[-1]:
+                                    object_ = Object(list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]])
+                                    break
+                                else:
+                                    object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]])
+                                    break
                             else:
-                                object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]])
-                                break
+                                i += 1
+                    case pygame.K_c:
+                        if show_vertices:
+                            show_vertices = False
                         else:
-                            i += 1
-                elif event.key == pygame.K_c:
-                    if show_vertices:
-                        show_vertices = False
-                    else:
-                        show_vertices = True
-                elif event.key == pygame.K_F1:
-                    if show_controls:
-                        show_controls = False
-                    else:
-                        show_controls = True
-                elif event.key == pygame.K_r:
-                    object_.reset()
+                            show_vertices = True
+                    case pygame.K_F1:
+                        if show_controls:
+                            show_controls = False
+                        else:
+                            show_controls = True
+                    case pygame.K_r:
+                        object_.reset()
 
         # Project object_ on the screen
         object_.project(window, show_vertices)
