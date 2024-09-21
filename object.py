@@ -3,7 +3,7 @@ import numpy as np
 import pygame
 
 
-def create_rotations_matrices(angle_x, angle_y, angle_z):
+def create_rotations_matrices(angle_x: float, angle_y: float, angle_z: float) -> tuple:
     # All changes in the 3D space (rotation, scaling, ...) are done by multiplying the object vertices with a specific matrix
     # Vertices' = Vertices x Matrix
 
@@ -31,7 +31,7 @@ def create_rotations_matrices(angle_x, angle_y, angle_z):
 
 
 class Object:
-    def __init__(self, name, vertices, faces):
+    def __init__(self, name: str, vertices: np.ndarray, faces: list):
         self.vertices = vertices
         self.faces = faces
         self.name = name
@@ -43,14 +43,14 @@ class Object:
         # Test
         #self.Kd = Kd
 
-    def reset(self):
+    def reset(self) -> None:
         self.scale = 120
         self.rotation_speed = 0
         self.angle_x = 0
         self.angle_y = 0
         self.angle_z = 0
 
-    def project(self, window, show_vertices):
+    def project(self, window: pygame.surface.Surface, show_vertices: bool) -> None:
         rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = create_rotations_matrices(self.angle_x, self.angle_y, self.angle_z)
 
         rotate_x = np.dot(self.vertices, rotation_x_matrix)

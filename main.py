@@ -6,7 +6,7 @@ import settings
 from object import Object
 
 
-def retrieve_obj_files(directory):
+def retrieve_obj_files(directory: str) -> tuple[dict, dict, list]:
     models_vertices = {}
     models_faces = {}
     list_models = []
@@ -29,7 +29,7 @@ def retrieve_obj_files(directory):
     return models_vertices, models_faces, list_models
 
 
-def sort_obj_file(file_name):
+def sort_obj_file(file_name: str) -> tuple[np.ndarray, list]:
     with open(f"resources/{file_name}.obj", "r") as file:
         vertices, faces = [], []
 
@@ -44,7 +44,6 @@ def sort_obj_file(file_name):
                 sorted_line = line.split(" ")
 
                 for i in range(len(sorted_line)):
-                    #sorted_face_index = sorted_line[i]
                     sorted_face_index = sorted_line[i].split("/")[0]
 
                     if sorted_face_index != "f" and sorted_face_index != "":
@@ -87,7 +86,7 @@ def sort_obj_file(file_name):
     # https://en.wikipedia.org/wiki/UV_mapping"""
 
 
-def main():
+def main() -> None:
     pygame.init()
     pygame.font.init()
 
@@ -115,9 +114,9 @@ def main():
     models_vertices, models_faces, list_models = retrieve_obj_files("resources")
 
     """example_Kd = diffuse_color = { # Kd
-            "Brown_Shotgun01": [0.122139, 0.048172, 0.024158],
-            "Gray_Shotgun_01": [0.048172, 0.048172, 0.048172],
-            "White_Shotgun_01": [0.617207, 0.617207, 0.617207]
+            "Brown_Shotgun01": [0.122139, 0.048172, 0.024158], # Have to multiply each of these numbers by 255 because
+            "Gray_Shotgun_01": [0.048172, 0.048172, 0.048172], # RGB colors are between 0-255 but in the .mtl they put
+            "White_Shotgun_01": [0.617207, 0.617207, 0.617207] # the colors between 0-1
         }"""
 
     #object_ = Object("shotgun", models_vertices["shotgun"], models_faces["shotgun"], example_Kd)
