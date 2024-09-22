@@ -34,10 +34,10 @@ def sort_obj_file(file_name: str) -> tuple[np.ndarray, list]:
         lines = file.read().splitlines()
 
         for line in lines:
-            if line.startswith("v "): # sorting v lines (vertex)
+            if line.startswith("v "):  # sorting v lines (vertex)
                 sorted_line = line.split(" ")[1:]
                 vertices.append([float(sorted_line[0]), float(sorted_line[1]), float(sorted_line[2])])
-            elif line.startswith("f "): # sorting f lines (faces)
+            elif line.startswith("f "):  # sorting f lines (faces)
                 temp_faces = []
                 sorted_line = line.split(" ")
 
@@ -46,8 +46,8 @@ def sort_obj_file(file_name: str) -> tuple[np.ndarray, list]:
 
                     if sorted_face_index != "f" and sorted_face_index != "":
                         temp_faces.append(int(sorted_face_index) - 1)
-            # Could also sort vt lines (vertex texture = the texture for each vertex)
-            # will be useful when adding texturing to my engine
+                # Could also sort vt lines (vertex texture = the texture for each vertex)
+                # will be useful when adding texturing to my engine
 
                 faces.append(temp_faces)
 
@@ -143,15 +143,13 @@ def main() -> None:
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                match event.key: # Faster than if/elif/else
+                match event.key:  # Faster than if/elif/else
                     case pygame.K_ESCAPE:
                         running = False
                     case pygame.K_z:
                         object_.scale += 20
                     case pygame.K_s:
-                        object_.scale -= 20
-                        if object_.scale == 0:
-                            object_.scale += 1
+                        object_.scale = 1 if (object_.scale - 20) <= 0 else object_.scale - 20
                     case pygame.K_UP:
                         object_.rotation_speed += 0.01
                     case pygame.K_DOWN:
@@ -160,23 +158,19 @@ def main() -> None:
                         for i in range(len(list_models)):
                             if list_models[i] == object_.name:
                                 if list_models[i] == list_models[-1]:
-                                    object_ = Object(list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]])
+                                    object_ = Object(list_models[0], models_vertices[list_models[0]],
+                                                     models_faces[list_models[0]])
                                     break
                                 else:
-                                    object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]])
+                                    object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]],
+                                                     models_faces[list_models[i + 1]])
                                     break
                             else:
                                 i += 1
                     case pygame.K_c:
-                        if show_vertices:
-                            show_vertices = False
-                        else:
-                            show_vertices = True
+                        show_vertices = False if show_vertices is True else True # Ternary operator -> takes less place
                     case pygame.K_F1:
-                        if show_controls:
-                            show_controls = False
-                        else:
-                            show_controls = True
+                        show_controls = False if show_controls is True else True
                     case pygame.K_r:
                         object_.reset()
 
