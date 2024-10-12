@@ -1,0 +1,10 @@
+newmtl TopFace
+Kd 0.513725490196 0.0274509803922 0.0274509803922
+
+newmtl BottomFace
+Kd 0 0.2 0
+
+newmtl Sides
+Kd 1 0.6 0.2
+
+# Made by Fsubject with bare hands

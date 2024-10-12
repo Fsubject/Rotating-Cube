@@ -47,41 +47,8 @@ def return_points_distance(A, B) -> int:
     return np.sqrt(pow((A_x + B_x), 2) + pow((A_y + B_y), 2) + pow((A_z + B_z), 2)) # Euclidian distance formula
 
 
-def draw_polygons(window, faces, screen_vertices, vertices_pos) -> None:
-    temp_faces = []
-    for face in faces:
-        z_distance = 0
-        for i in face:
-            z_distance += return_points_distance(settings.CAMERA, vertices_pos[i])
-
-        avg_z = z_distance / len(face)
-        temp_faces.append((face, avg_z))
-
-    faces_arr = np.array(temp_faces, dtype=[('faces', 'O'), ('distance', 'f4')])
-    faces_arr[::-1].sort(order="distance", axis=0)
-
-    i = 0
-    for face, distance in faces_arr:
-        if len(face) == 4:
-            polygon = [
-                (screen_vertices[face[0]][0], screen_vertices[face[0]][1]),
-                (screen_vertices[face[1]][0], screen_vertices[face[1]][1]),
-                (screen_vertices[face[2]][0], screen_vertices[face[2]][1]),
-                (screen_vertices[face[3]][0], screen_vertices[face[3]][1])
-            ]
-        else:
-            polygon = [
-                (screen_vertices[face[0]][0], screen_vertices[face[0]][1]),
-                (screen_vertices[face[1]][0], screen_vertices[face[1]][1]),
-                (screen_vertices[face[2]][0], screen_vertices[face[2]][1])
-            ]
-
-        pygame.draw.polygon(window, settings.GREEN if i % 2 == 0 else settings.RED, polygon, 0)
-        i += 1
-
-
 class Object:
-    def __init__(self, name: str, vertices: np.ndarray, faces: list):
+    def __init__(self, name: str, vertices: np.ndarray, faces: dict, colors: dict, materials: dict):
         self.vertices = vertices
         self.faces = faces
         self.name = name
@@ -90,12 +57,9 @@ class Object:
         self.scale = 1000
         self.rotation_speed = 0
 
-        # Test (Cube Kd)
-        self.Kd = {
-            "Red_Sides": (255, 0, 0),
-            "Green_Top": (0, 255, 0),
-            "Yellow_Bottom": (255, 255, 0)
-        }
+        # Coloring the model
+        self.colors = colors
+        self.Kd = materials
 
     def reset(self) -> None:
         self.scale = 1000
@@ -127,6 +91,44 @@ class Object:
             if show_vertices:
                 pygame.draw.circle(window, settings.WHITE, (x, y), 4)  # Draw a vertex (a point) of the cube
 
-        draw_polygons(window, self.faces, screen_vertices, vertices_pos)
+        self.draw_polygons(window, screen_vertices, vertices_pos)
 
         # https://technology.cpm.org/general/3dgraph/
+
+    def draw_polygons(self, window, screen_vertices, vertices_pos) -> None:
+        temp_faces = []
+        for i, face in enumerate(self.faces):
+            z_distance = 0
+            for vertex_idx in face:
+                z_distance += return_points_distance(settings.CAMERA, vertices_pos[vertex_idx])
+
+            avg_z = z_distance / len(face)
+
+            face_color = None
+            for color in self.colors:
+                if i in self.colors[color]:
+                    face_color = color
+
+            temp_faces.append((face, avg_z, face_color))
+
+        faces_arr = np.array(temp_faces, dtype=[("faces", "O"), ("distance", "f4"), ("color", "U100")])
+        faces_arr[::-1].sort(order="distance", axis=0)
+
+        i = 0
+        for face, distance, color in faces_arr:
+            if len(face) == 4:
+                polygon = [
+                    (screen_vertices[face[0]][0], screen_vertices[face[0]][1]),
+                    (screen_vertices[face[1]][0], screen_vertices[face[1]][1]),
+                    (screen_vertices[face[2]][0], screen_vertices[face[2]][1]),
+                    (screen_vertices[face[3]][0], screen_vertices[face[3]][1])
+                ]
+            else:
+                polygon = [
+                    (screen_vertices[face[0]][0], screen_vertices[face[0]][1]),
+                    (screen_vertices[face[1]][0], screen_vertices[face[1]][1]),
+                    (screen_vertices[face[2]][0], screen_vertices[face[2]][1])
+                ]
+
+            pygame.draw.polygon(window, self.Kd[color], polygon, 0)
+            i += 1

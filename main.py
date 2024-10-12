@@ -6,9 +6,11 @@ import settings
 from object import Object
 
 
-def retrieve_obj_files(directory: str) -> tuple[dict, dict, list]:
+def retrieve_obj_files(directory: str) -> tuple[dict, dict, dict, dict, list]:
     models_vertices = {}
     models_faces = {}
+    models_materials = {}
+    models_colors = {}
     list_models = []
 
     for file in os.listdir(directory):
@@ -19,24 +21,32 @@ def retrieve_obj_files(directory: str) -> tuple[dict, dict, list]:
                 list_models.append(file.split(".")[0])
 
     for model_file_name in list_models:
-        vertices, faces = sort_obj_file(model_file_name)
+        materials = get_materials(model_file_name)
+        models_materials[model_file_name] = materials
+
+        vertices, faces, faces_color = sort_obj_file(model_file_name)
         models_vertices[model_file_name] = vertices
         models_faces[model_file_name] = faces
+        models_colors[model_file_name] = faces_color
 
     print()
-    return models_vertices, models_faces, list_models
+    return models_vertices, models_faces, models_materials, models_colors, list_models
 
 
-def sort_obj_file(file_name: str) -> tuple[np.ndarray, list]:
+def sort_obj_file(file_name: str) -> tuple[np.ndarray, list, dict]:
     with open(f"resources/{file_name}.obj", "r") as file:
-        vertices, faces = [], []
+        vertices, faces, faces_color = [], [], {"Default": []}
 
-        lines = file.read().splitlines()
-
-        for line in lines:
+        actual_mtl = None
+        faces_i = 0
+        for line in file:
             if line.startswith("v "):  # sorting v lines (vertex)
                 sorted_line = line.split(" ")[1:]
                 vertices.append([float(sorted_line[0]), float(sorted_line[1]), float(sorted_line[2])])
+            elif line.startswith("usemtl"):
+                material_name = line.split(" ")[1][:-1]
+                faces_color[material_name] = []
+                actual_mtl = material_name
             elif line.startswith("f "):  # sorting f lines (faces)
                 temp_faces = []
                 sorted_line = line.split(" ")
@@ -46,40 +56,41 @@ def sort_obj_file(file_name: str) -> tuple[np.ndarray, list]:
 
                     if sorted_face_index != "f" and sorted_face_index != "":
                         temp_faces.append(int(sorted_face_index) - 1)
-                # Could also sort vt lines (vertex texture = the texture for each vertex)
-                # will be useful when adding texturing to my engine
 
                 faces.append(temp_faces)
 
+                if actual_mtl is not None:
+                    faces_color[actual_mtl].append(faces_i)
+                else:
+                    faces_color["Default"].append(faces_i)
+
+                faces_i += 1
+
         print(f"resources/{file_name}.obj has been loaded ({len(vertices)} vertices, {len(faces)} faces)")
 
-        return np.array(vertices), faces
+        return np.array(vertices), faces, faces_color
 
 
-"""def object_coloring():
-    with open("resources/shotgun.mtl") as file:
-        paragraph = file.read().split("newmtl")
-        for lines in paragraph:
-            if lines.startswith("#"):
-                paragraph.remove(lines)
+def get_materials(model_name: str) -> dict:
+    try:
+        with open(f"resources/{model_name}.mtl") as file:
+            materials = {}
+            actual_mtl = None
+            for line in file:
+                if line.startswith("newmtl"):
+                    material_name = line.split(" ")[1][:-1]
+                    materials[material_name] = None
+                    actual_mtl = material_name
 
-            sep_lines = lines.splitlines()
+                if actual_mtl is not None:
+                    if line.startswith("Kd"):
+                        Kd_data = line.split(" ")
+                        materials[actual_mtl] = (float(Kd_data[1]) * 255, float(Kd_data[2]) * 255, float(Kd_data[3][:-1]) * 255)
 
-            print(sep_lines)
-        print()
-        for line in lines:
-            #if line.startswith("Ka"):
-                #ambient_color.append(line.split(" ")[1:])
-            if line.startswith("Kd"):
-                diffuse_color[""]
-                #diffuse_color.append(line.split(" ")[1:])
-            #elif line.startswith("Ks"):
-                #specular_color.append(line.split(" ")[1:])
-
-        print(diffuse_color)
-
-        return diffuse_color
-    # https://en.wikipedia.org/wiki/UV_mapping"""
+            return materials
+    except FileNotFoundError:
+        print(f"WARNING: couldn't find the material file for the model: {model_name}")
+        return {"Default": settings.GREEN}
 
 
 def main() -> None:
@@ -113,15 +124,9 @@ def main() -> None:
                 mid_font.render("[R] Reset figure settings", False, settings.GREEN)]
 
     # Model
-    models_vertices, models_faces, list_models = retrieve_obj_files("resources")
+    models_vertices, models_faces, models_materials, models_colors, list_models = retrieve_obj_files("resources")
 
-    """shotgun_testing_Kd = { # Kd
-            "Brown_Shotgun01": [0.122139, 0.048172, 0.024158], # Have to multiply each of these numbers by 255 because
-            "Gray_Shotgun_01": [0.048172, 0.048172, 0.048172], # RGB colors are between 0-255 but in the .mtl they put
-            "White_Shotgun_01": [0.617207, 0.617207, 0.617207] # the colors between 0-1
-        }"""
-
-    object_ = Object("cube", models_vertices["cube"], models_faces["cube"])
+    object_ = Object("cube", models_vertices["cube"], models_faces["cube"], models_colors["cube"], models_materials["cube"])
 
     # Settings
     show_vertices = True
@@ -129,7 +134,7 @@ def main() -> None:
 
     while running:
         clock.tick(settings.MAX_FRAMERATE)
-        window.fill(settings.BLACK)
+        window.fill((15, 15, 15))
 
         # Render dynamic texts
         fps_text = mid_font.render(str(round(clock.get_fps())), False, settings.GREEN)
@@ -155,10 +160,10 @@ def main() -> None:
                         for i in range(len(list_models)):
                             if list_models[i] == object_.name:
                                 if list_models[i] == list_models[-1]:
-                                    object_ = Object(list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]])
+                                    object_ = Object(list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]], models_colors[list_models[0]], models_materials[list_models[0]])
                                     break
                                 else:
-                                    object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]])
+                                    object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]], models_colors[list_models[i + 1]], models_materials[list_models[i + 1]])
                                     break
                             else:
                                 i += 1
