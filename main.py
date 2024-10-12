@@ -72,9 +72,10 @@ def sort_obj_file(file_name: str) -> tuple[np.ndarray, list, dict]:
 
 
 def get_materials(model_name: str) -> dict:
+    materials = {"Default": settings.GREEN}
+
     try:
         with open(f"resources/{model_name}.mtl") as file:
-            materials = {}
             actual_mtl = None
             for line in file:
                 if line.startswith("newmtl"):
@@ -87,10 +88,9 @@ def get_materials(model_name: str) -> dict:
                         Kd_data = line.split(" ")
                         materials[actual_mtl] = (float(Kd_data[1]) * 255, float(Kd_data[2]) * 255, float(Kd_data[3][:-1]) * 255)
 
-            return materials
-    except FileNotFoundError:
-        print(f"WARNING: couldn't find the material file for the model: {model_name}")
-        return {"Default": settings.GREEN}
+            file.close()
+    finally:
+        return materials
 
 
 def main() -> None:
@@ -126,15 +126,14 @@ def main() -> None:
     # Model
     models_vertices, models_faces, models_materials, models_colors, list_models = retrieve_obj_files("resources")
 
-    object_ = Object("cube", models_vertices["cube"], models_faces["cube"], models_colors["cube"], models_materials["cube"])
+    object_ = Object(window, "cube", models_vertices["cube"], models_faces["cube"], models_colors["cube"], models_materials["cube"])
 
     # Settings
-    show_vertices = True
     show_controls = True
 
     while running:
         clock.tick(settings.MAX_FRAMERATE)
-        window.fill((15, 15, 15))
+        window.fill(settings.BG)
 
         # Render dynamic texts
         fps_text = mid_font.render(str(round(clock.get_fps())), False, settings.GREEN)
@@ -160,22 +159,22 @@ def main() -> None:
                         for i in range(len(list_models)):
                             if list_models[i] == object_.name:
                                 if list_models[i] == list_models[-1]:
-                                    object_ = Object(list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]], models_colors[list_models[0]], models_materials[list_models[0]])
+                                    object_ = Object(window, list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]], models_colors[list_models[0]], models_materials[list_models[0]])
                                     break
                                 else:
-                                    object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]], models_colors[list_models[i + 1]], models_materials[list_models[i + 1]])
+                                    object_ = Object(window, list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]], models_colors[list_models[i + 1]], models_materials[list_models[i + 1]])
                                     break
                             else:
                                 i += 1
                     case pygame.K_c:
-                        show_vertices = False if show_vertices is True else True # Ternary operator -> takes less place
+                        object_.show_vertices = False if object_.show_vertices is True else True # Ternary operator -> takes less place
                     case pygame.K_F1:
                         show_controls = False if show_controls is True else True
                     case pygame.K_r:
                         object_.reset()
 
         # Project object_ on the screen
-        object_.project(window, show_vertices)
+        object_.project()
 
         object_.angle_x += object_.rotation_speed
         object_.angle_y += object_.rotation_speed

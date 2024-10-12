@@ -6,7 +6,8 @@ MAX_FRAMERATE = 60
 
 RUN_LOOP = True
 
-# Color
+# Colors
+BG = (15, 15, 15)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)

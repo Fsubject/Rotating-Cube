@@ -48,7 +48,8 @@ def return_points_distance(A, B) -> int:
 
 
 class Object:
-    def __init__(self, name: str, vertices: np.ndarray, faces: dict, colors: dict, materials: dict):
+    def __init__(self, window: pygame.surface.Surface, name: str, vertices: np.ndarray, faces: dict, colors: dict, materials: dict):
+        self.window = window
         self.vertices = vertices
         self.faces = faces
         self.name = name
@@ -56,6 +57,7 @@ class Object:
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0
         self.scale = 1000
         self.rotation_speed = 0
+        self.show_vertices = True
 
         # Coloring the model
         self.colors = colors
@@ -68,7 +70,7 @@ class Object:
         self.angle_y = 0
         self.angle_z = 0
 
-    def project(self, window: pygame.surface.Surface, show_vertices: bool) -> None:
+    def project(self) -> None:
         rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = rotations_matrices(self.angle_x, self.angle_y, self.angle_z)
 
         screen_vertices = [] # Vertices ready for the screen
@@ -88,14 +90,14 @@ class Object:
             screen_vertices.append((float(x), float(y), float(vertex[2])))
             vertices_pos.append((float(vertex[0]), float(vertex[1]), float(vertex[2])))
 
-            if show_vertices:
-                pygame.draw.circle(window, settings.WHITE, (x, y), 4)  # Draw a vertex (a point) of the cube
+            if self.show_vertices:
+                pygame.draw.circle(self.window, settings.WHITE, (x, y), 4)  # Draw a vertex (a point) of the cube
 
-        self.draw_polygons(window, screen_vertices, vertices_pos)
+        self.draw_polygons(screen_vertices, vertices_pos)
 
         # https://technology.cpm.org/general/3dgraph/
 
-    def draw_polygons(self, window, screen_vertices, vertices_pos) -> None:
+    def draw_polygons(self, screen_vertices, vertices_pos) -> None:
         temp_faces = []
         for i, face in enumerate(self.faces):
             z_distance = 0
@@ -130,5 +132,5 @@ class Object:
                     (screen_vertices[face[2]][0], screen_vertices[face[2]][1])
                 ]
 
-            pygame.draw.polygon(window, self.Kd[color], polygon, 0)
+            pygame.draw.polygon(self.window, self.Kd[color], polygon, 0)
             i += 1
