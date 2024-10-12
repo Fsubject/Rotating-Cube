@@ -58,8 +58,6 @@ def sort_obj_file(file_name: str) -> tuple[np.ndarray, list]:
 
 """def object_coloring():
     with open("resources/shotgun.mtl") as file:
-        
-
         paragraph = file.read().split("newmtl")
         for lines in paragraph:
             if lines.startswith("#"):
@@ -117,13 +115,12 @@ def main() -> None:
     # Model
     models_vertices, models_faces, list_models = retrieve_obj_files("resources")
 
-    """shotgun_testing_Kd = diffuse_color = { # Kd
+    """shotgun_testing_Kd = { # Kd
             "Brown_Shotgun01": [0.122139, 0.048172, 0.024158], # Have to multiply each of these numbers by 255 because
             "Gray_Shotgun_01": [0.048172, 0.048172, 0.048172], # RGB colors are between 0-255 but in the .mtl they put
             "White_Shotgun_01": [0.617207, 0.617207, 0.617207] # the colors between 0-1
         }"""
 
-    #object_ = Object("shotgun", models_vertices["shotgun"], models_faces["shotgun"], shotgun_testing_Kd)
     object_ = Object("cube", models_vertices["cube"], models_faces["cube"])
 
     # Settings
@@ -147,9 +144,9 @@ def main() -> None:
                     case pygame.K_ESCAPE:
                         running = False
                     case pygame.K_z:
-                        object_.scale += 20
+                        settings.CAMERA += np.array([0, 0, 1])
                     case pygame.K_s:
-                        object_.scale = 1 if (object_.scale - 20) <= 0 else object_.scale - 20
+                        settings.CAMERA -= np.array([0, 0, 1])
                     case pygame.K_UP:
                         object_.rotation_speed += 0.01
                     case pygame.K_DOWN:
@@ -158,12 +155,10 @@ def main() -> None:
                         for i in range(len(list_models)):
                             if list_models[i] == object_.name:
                                 if list_models[i] == list_models[-1]:
-                                    object_ = Object(list_models[0], models_vertices[list_models[0]],
-                                                     models_faces[list_models[0]])
+                                    object_ = Object(list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]])
                                     break
                                 else:
-                                    object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]],
-                                                     models_faces[list_models[i + 1]])
+                                    object_ = Object(list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]])
                                     break
                             else:
                                 i += 1

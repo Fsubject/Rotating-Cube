@@ -1,33 +1,83 @@
+# Made entirely by Fsubject
 import settings
 import numpy as np
 import pygame
 
 
-def create_rotations_matrices(angle_x: float, angle_y: float, angle_z: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def rotations_matrices(angle_x: float, angle_y: float, angle_z: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     # All changes in the 3D space (rotation, scaling, ...) are done by multiplying the object vertices with a specific matrix
     # Vertices' = Vertices x Matrix
 
     rotation_x_matrix = np.array([
         [1, 0, 0],
         [0, np.cos(angle_x), -np.sin(angle_x)],
-        [0, np.sin(angle_x), np.cos(angle_x)],
+        [0, np.sin(angle_x), np.cos(angle_x)]
     ])
 
     rotation_y_matrix = np.array([
         [np.cos(angle_y), 0, np.sin(angle_y)],
         [0, 1, 0],
-        [-np.sin(angle_y), 0, np.cos(angle_y)],
+        [-np.sin(angle_y), 0, np.cos(angle_y)]
     ])
 
     rotation_z_matrix = np.array([
         [np.cos(angle_z), -np.sin(angle_z), 0],
         [np.sin(angle_z), np.cos(angle_z), 0],
-        [0, 0, 1],
+        [0, 0, 1]
     ])
 
     # https://en.wikipedia.org/wiki/Rotation_matrix#Basic_3D_rotations
 
     return rotation_x_matrix, rotation_y_matrix, rotation_z_matrix
+
+
+def perspective_matrix(z_vertex) -> np.ndarray:
+    z = 1 / (-settings.CAMERA[2] - z_vertex)
+    return np.array([
+        [z, 0, 0],
+        [0, z, 0],
+        [0, 0, 1]
+    ])
+
+
+def return_points_distance(A, B) -> int:
+    A_x, B_x = A[0], B[0]
+    A_y, B_y = A[1], B[1]
+    A_z, B_z = A[2], B[2]
+    return np.sqrt(pow((A_x + B_x), 2) + pow((A_y + B_y), 2) + pow((A_z + B_z), 2)) # Euclidian distance formula
+
+
+def draw_polygons(window, faces, screen_vertices, vertices_pos) -> None:
+    temp_faces = []
+    for face in faces:
+        z_distance = 0
+        for i in face:
+            z_distance += return_points_distance(settings.CAMERA, vertices_pos[i])
+
+        avg_z = z_distance / len(face)
+        temp_faces.append((face, avg_z))
+
+    faces_arr = np.array(temp_faces, dtype=[('faces', 'O'), ('distance', 'f4')])
+    faces_arr[::-1].sort(order="distance", axis=0)
+
+    i = 0
+    for face, distance in faces_arr:
+        if len(face) == 4:
+            polygon = [
+                (screen_vertices[face[0]][0], screen_vertices[face[0]][1]),
+                (screen_vertices[face[1]][0], screen_vertices[face[1]][1]),
+                (screen_vertices[face[2]][0], screen_vertices[face[2]][1]),
+                (screen_vertices[face[3]][0], screen_vertices[face[3]][1])
+            ]
+        else:
+            polygon = [
+                (screen_vertices[face[0]][0], screen_vertices[face[0]][1]),
+                (screen_vertices[face[1]][0], screen_vertices[face[1]][1]),
+                (screen_vertices[face[2]][0], screen_vertices[face[2]][1])
+            ]
+
+        pygame.draw.polygon(window, settings.GREEN if i % 2 == 0 else settings.RED, polygon, 0)
+        i += 1
 
 
 class Object:
@@ -37,51 +87,46 @@ class Object:
         self.name = name
 
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0
-        self.scale = 120
+        self.scale = 1000
         self.rotation_speed = 0
 
-        # Test
-        #self.Kd = Kd
+        # Test (Cube Kd)
+        self.Kd = {
+            "Red_Sides": (255, 0, 0),
+            "Green_Top": (0, 255, 0),
+            "Yellow_Bottom": (255, 255, 0)
+        }
 
     def reset(self) -> None:
-        self.scale = 120
+        self.scale = 1000
         self.rotation_speed = 0
         self.angle_x = 0
         self.angle_y = 0
         self.angle_z = 0
 
     def project(self, window: pygame.surface.Surface, show_vertices: bool) -> None:
-        rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = create_rotations_matrices(self.angle_x, self.angle_y, self.angle_z)
+        rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = rotations_matrices(self.angle_x, self.angle_y, self.angle_z)
 
-        rotate_x = np.dot(self.vertices, rotation_x_matrix)
-        rotate_y = np.dot(rotate_x, rotation_y_matrix)
-        rotate_z = np.dot(rotate_y, rotation_z_matrix)
+        screen_vertices = [] # Vertices ready for the screen
+        vertices_pos = [] # Actual position of the vertices (without the scaling up and everything...)
+        for raw_vertex in self.vertices:
+            vertex = np.dot(raw_vertex, rotation_x_matrix)
+            vertex = np.dot(vertex, rotation_y_matrix)
+            vertex = np.dot(vertex, rotation_z_matrix)
 
-        multiplied_vertices = np.dot(rotate_z, settings.PROJECTION_MATRIX)
+            projection_matrix = perspective_matrix(vertex[2])
 
-        # WARNING: An objects in space is define by points called object vertices <----
-        vertices_pos = []
-        for vertex in multiplied_vertices:
-            x = (vertex[0] * self.scale) + settings.WIN_WIDTH / 2 # PROBLEM: when a model is too big, scale it down isn't enough because it reverses
-            y = (vertex[1] * self.scale) + settings.WIN_HEIGHT / 2         # at some point
+            vertex = np.dot(vertex, projection_matrix)
 
-            vertices_pos.append((float(x), float(y)))  # Keep track of the vertices position
+            x = (vertex[0] * self.scale) + settings.WIN_WIDTH / 2  # PROBLEM: when a model is too big, scale it down isn't enough because it reverses
+            y = (vertex[1] * self.scale) + settings.WIN_HEIGHT / 2  # at some point
+
+            screen_vertices.append((float(x), float(y), float(vertex[2])))
+            vertices_pos.append((float(vertex[0]), float(vertex[1]), float(vertex[2])))
 
             if show_vertices:
                 pygame.draw.circle(window, settings.WHITE, (x, y), 4)  # Draw a vertex (a point) of the cube
 
-        for face in self.faces:
-            if len(face) == 4:
-                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[face[0]], vertices_pos[face[1]], vertices_pos[face[2]], vertices_pos[face[3]]), 2)
-            elif len(face) == 3:
-                pygame.draw.polygon(window, settings.GREEN, (vertices_pos[face[0]], vertices_pos[face[1]], vertices_pos[face[2]]), 2)
-
-            # Testing
-            """if len(face) == 4:
-                pygame.draw.polygon(window, (), (vertices_pos[face[0]], vertices_pos[face[1]], vertices_pos[face[2]], vertices_pos[face[3]]), 0)
-            elif len(face) == 3:
-                pygame.draw.polygon(window, (), (vertices_pos[face[0]], vertices_pos[face[1]], vertices_pos[face[2]]), 0)"""
-
-            # https://www.pygame.org/docs/ref/draw.html
+        draw_polygons(window, self.faces, screen_vertices, vertices_pos)
 
         # https://technology.cpm.org/general/3dgraph/

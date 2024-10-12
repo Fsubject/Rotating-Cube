@@ -9,11 +9,18 @@ RUN_LOOP = True
 # Color
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 153)
 WHITE = (255, 255, 255)
 
-# Static projection matrix
+# Static projection matrix (https://en.wikipedia.org/wiki/Orthographic_projection < Perspective projection)
+# http://matrixmultiplication.xyz/
 PROJECTION_MATRIX = np.array([
     [1, 0, 0], # x
     [0, 1, 0], # y
-    [0, 0, 0], # z
+    [0, 0, 0] # z
 ])
+
+CAMERA = np.array([0, 1, -9])
+
+CUBE_FACE_COLOR = [GREEN, RED, BLUE, WHITE, GREEN, RED, BLUE, WHITE]

@@ -2,19 +2,12 @@
 1. Save each object's actual settings (scale, rotation_speed, position, etc.) after changing to another object
    so when I go back to the object, it will be the same as I left it.
 
-2. Be able to scale down more for the bigger models (like the truck.obj) // update: I added a temporary fix that probably only works for the truck
+2. Change the type of projection to perspective projection
 
-3. render the model colors using .obj's vt lines
-   how to: witch each .obj file comes a .mtl file, the .mtl file contains a line that starts with
-           "newmtl NAME" -> this line basically create a new material that the .obj file will be able to use
-                          the material define the color and other properties of the object.
+3. Be able to scale down more for the bigger models (like the truck.obj) // update: I added a temporary fix that probably only works for the truck
 
-           now in the .obj file, there are lines that start with "usemtl NAME" -> this line tells the .obj file
-           which material he has to use for the following faces.
+4. render colors
 
-           -> SEE shotgun.obj & shotgun.mtl for example
-           objective: render the shotgun model with the correct colors
-
-4. more...
+5. more...
 
 --> Still made by Fsubject
