@@ -9,8 +9,7 @@
 4. If you want to add any 3d model, just drag & drop the *.obj* file into the *resources* directory
 
 ## Recommended models
-Don't take too big models obviously it's a very small engine.  
-The biggest model I used was a 913 vertices model with 950 faces, and it was running at 60fps (which the maximum).
+Don't use too big model, it's not Unreal Engine 
 
 ## Contribute
 I am *open* to contributions as long as you don't just break everything.
