@@ -36,7 +36,7 @@ def perspective_matrix(z_vertex) -> np.ndarray:
     return np.array([
         [z, 0, 0],
         [0, z, 0],
-        [0, 0, 1]
+        [0, 0, z]
     ])
 
 
@@ -54,21 +54,26 @@ class Object:
         self.faces = faces
         self.name = name
 
+        self.x_pos, self.y_pos, self.z_pos = 0, 0, 0
         self.angle_x, self.angle_y, self.angle_z = 0, 0, 0
         self.scale = 1000
         self.rotation_speed = 0
+
         self.show_vertices = True
 
         # Coloring the model
         self.colors = colors
-        self.Kd = materials
+        self.materials = materials
 
     def reset(self) -> None:
-        self.scale = 1000
-        self.rotation_speed = 0
+        self.x_pos = 0
+        self.y_pos = 0
+        self.z_pos = 0
         self.angle_x = 0
         self.angle_y = 0
         self.angle_z = 0
+        self.scale = 1000
+        self.rotation_speed = 0
 
     def project(self) -> None:
         rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = rotations_matrices(self.angle_x, self.angle_y, self.angle_z)
@@ -80,18 +85,20 @@ class Object:
             vertex = np.dot(vertex, rotation_y_matrix)
             vertex = np.dot(vertex, rotation_z_matrix)
 
+            vertex[2] += self.z_pos
+
             projection_matrix = perspective_matrix(vertex[2])
 
             vertex = np.dot(vertex, projection_matrix)
 
-            x = (vertex[0] * self.scale) + settings.WIN_WIDTH / 2  # PROBLEM: when a model is too big, scale it down isn't enough because it reverses
-            y = (vertex[1] * self.scale) + settings.WIN_HEIGHT / 2  # at some point
+            x = ((vertex[0] * self.scale) + settings.WIN_WIDTH / 2) + self.x_pos
+            y = ((vertex[1] * self.scale) + settings.WIN_HEIGHT / 2) + self.y_pos
 
             screen_vertices.append((float(x), float(y), float(vertex[2])))
             vertices_pos.append((float(vertex[0]), float(vertex[1]), float(vertex[2])))
 
             if self.show_vertices:
-                pygame.draw.circle(self.window, settings.WHITE, (x, y), 4)  # Draw a vertex (a point) of the cube
+                pygame.draw.circle(self.window, settings.L_GREY, (x, y), 4)  # Draw a vertex (a point) of the cube
 
         self.draw_polygons(screen_vertices, vertices_pos)
 
@@ -132,5 +139,10 @@ class Object:
                     (screen_vertices[face[2]][0], screen_vertices[face[2]][1])
                 ]
 
-            pygame.draw.polygon(self.window, self.Kd[color], polygon, 0)
+            pygame.draw.polygon(self.window, self.materials[color], polygon, 0)
             i += 1
+
+    def move_pos(self, x, y, z):
+        self.x_pos += x
+        self.y_pos += y
+        self.z_pos += z

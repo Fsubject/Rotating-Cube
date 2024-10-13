@@ -99,29 +99,24 @@ def main() -> None:
 
     print()
 
-    window = pygame.display.set_mode((settings.WIN_WIDTH, settings.WIN_HEIGHT))
+    window = pygame.display.set_mode((settings.WIN_WIDTH, settings.WIN_HEIGHT), pygame.FULLSCREEN)
     clock = pygame.time.Clock()
     running = settings.RUN_LOOP
 
     pygame.display.set_caption("Rotating cube")
 
     # Init fonts
-    mid_font = pygame.font.Font("resources/font/Silkscreen-Regular.ttf", 25)
+    mid_font = pygame.font.Font("resources/font/Silkscreen-Regular.ttf", 20)
     small_font = pygame.font.Font("resources/font/Silkscreen-Regular.ttf", 14)
 
     # Render static texts
-    """controls = [mid_font.render("[C] Toggle figure vertices", False, settings.GREEN),
-                mid_font.render("[UP - DOWN] Change rotation speed", False, settings.GREEN),
-                mid_font.render("[Z - S] Change figure scale", False, settings.GREEN),
-                mid_font.render("[W] Switch to another figure", False, settings.GREEN),
-                mid_font.render("[F1] Hide controls", False, settings.GREEN)]"""
-    controls = [mid_font.render("[C] Toggle figure vertices", False, settings.GREEN),
-                mid_font.render("[UP] Increase rotation speed", False, settings.GREEN),
-                mid_font.render("[DOWN] Decrease rotation speed", False, settings.GREEN),
-                mid_font.render("[Z] Scale up figure", False, settings.GREEN),
-                mid_font.render("[S] Scale down figure", False, settings.GREEN),
-                mid_font.render("[W] Switch to another figure", False, settings.GREEN),
-                mid_font.render("[R] Reset figure settings", False, settings.GREEN)]
+    controls = [mid_font.render("[C] Toggle figure vertices", False, settings.L_GREY),
+                mid_font.render("[UP] Increase rotation speed", False, settings.L_GREY),
+                mid_font.render("[DOWN] Decrease rotation speed", False, settings.L_GREY),
+                mid_font.render("[Z] Scale up figure", False, settings.L_GREY),
+                mid_font.render("[S] Scale down figure", False, settings.L_GREY),
+                mid_font.render("[W] Switch to another figure", False, settings.L_GREY),
+                mid_font.render("[R] Reset figure settings", False, settings.L_GREY)]
 
     # Model
     models_vertices, models_faces, models_materials, models_colors, list_models = retrieve_obj_files("resources")
@@ -129,15 +124,16 @@ def main() -> None:
     object_ = Object(window, "cube", models_vertices["cube"], models_faces["cube"], models_colors["cube"], models_materials["cube"])
 
     # Settings
-    show_controls = True
+    show_controls = False
+    editing = False
 
     while running:
         clock.tick(settings.MAX_FRAMERATE)
         window.fill(settings.BG)
 
         # Render dynamic texts
-        fps_text = mid_font.render(str(round(clock.get_fps())), False, settings.GREEN)
-        loaded_text = small_font.render(f"Current model: {object_.name}.obj", False, settings.GREEN)
+        fps_text = mid_font.render(str(round(clock.get_fps())), False, settings.L_GREY)
+        loaded_text = small_font.render(f"Current model: {object_.name}.obj", False, settings.L_GREY)
 
         # Check for pygame event
         for event in pygame.event.get():
@@ -148,9 +144,9 @@ def main() -> None:
                     case pygame.K_ESCAPE:
                         running = False
                     case pygame.K_z:
-                        settings.CAMERA += np.array([0, 0, 1])
+                        settings.CAMERA += np.array([0.0, 0.0, 1])
                     case pygame.K_s:
-                        settings.CAMERA -= np.array([0, 0, 1])
+                        settings.CAMERA -= np.array([0.0, 0.0, 1])
                     case pygame.K_UP:
                         object_.rotation_speed += 0.01
                     case pygame.K_DOWN:
@@ -172,6 +168,14 @@ def main() -> None:
                         show_controls = False if show_controls is True else True
                     case pygame.K_r:
                         object_.reset()
+                    case pygame.K_LCTRL:
+                        editing = False if editing is True else True
+            elif event.type == pygame.MOUSEMOTION:
+                if editing:
+                    object_.move_pos(event.rel[0], event.rel[1], 0)
+            elif event.type == pygame.MOUSEWHEEL:
+                if editing:
+                    object_.move_pos(0, 0, event.y)
 
         # Project object_ on the screen
         object_.project()
@@ -186,8 +190,8 @@ def main() -> None:
                 window.blit(text, (20, 20 + i))
                 i += 30
 
-        window.blit(fps_text, (1140, 20))
-        window.blit(loaded_text, (20, 760))
+        window.blit(fps_text, (settings.WIN_WIDTH - 60, 20)) # Substract 60 to settings.WIN_WIDTH if not fullscreen
+        window.blit(loaded_text, (20, settings.WIN_HEIGHT - 40))
 
         pygame.display.flip()
 

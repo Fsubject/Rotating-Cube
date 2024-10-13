@@ -162,9 +162,9 @@ cython_debug/
 .idea/
 
 # Custom for this project
-cheese.obj
 pistol.obj
-truck.obj
+pistol.mtl
 shotgun.obj
 shotgun.mtl
 rifle.obj
+rifle.mtl
