@@ -23,6 +23,4 @@ PROJECTION_MATRIX = np.array([
     [0, 0, 0] # z
 ])
 
-CAMERA = np.array([0.0, 1.0, -10.0])
-
 CUBE_FACE_COLOR = [GREEN, RED, BLUE, WHITE, GREEN, RED, BLUE, WHITE]

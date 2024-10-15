@@ -4,6 +4,7 @@ import pygame
 import os
 import settings
 from object import Object
+from camera import Camera
 
 
 def retrieve_obj_files(directory: str) -> tuple[dict, dict, dict, dict, list]:
@@ -118,10 +119,14 @@ def main() -> None:
                 mid_font.render("[W] Switch to another figure", False, settings.L_GREY),
                 mid_font.render("[R] Reset figure settings", False, settings.L_GREY)]
 
+    fps_offset = 0 if window.get_width() > settings.WIN_WIDTH else 60
+
     # Model
+    camera = Camera()
+
     models_vertices, models_faces, models_materials, models_colors, list_models = retrieve_obj_files("resources")
 
-    object_ = Object(window, "cube", models_vertices["cube"], models_faces["cube"], models_colors["cube"], models_materials["cube"])
+    object_ = Object(window, camera, "cube", models_vertices["cube"], models_faces["cube"], models_colors["cube"], models_materials["cube"])
 
     # Settings
     show_controls = False
@@ -143,10 +148,6 @@ def main() -> None:
                 match event.key:  # Faster than if/elif/else
                     case pygame.K_ESCAPE:
                         running = False
-                    case pygame.K_z:
-                        settings.CAMERA += np.array([0.0, 0.0, 1])
-                    case pygame.K_s:
-                        settings.CAMERA -= np.array([0.0, 0.0, 1])
                     case pygame.K_UP:
                         object_.rotation_speed += 0.01
                     case pygame.K_DOWN:
@@ -155,10 +156,10 @@ def main() -> None:
                         for i in range(len(list_models)):
                             if list_models[i] == object_.name:
                                 if list_models[i] == list_models[-1]:
-                                    object_ = Object(window, list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]], models_colors[list_models[0]], models_materials[list_models[0]])
+                                    object_ = Object(window, camera, list_models[0], models_vertices[list_models[0]], models_faces[list_models[0]], models_colors[list_models[0]], models_materials[list_models[0]])
                                     break
                                 else:
-                                    object_ = Object(window, list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]], models_colors[list_models[i + 1]], models_materials[list_models[i + 1]])
+                                    object_ = Object(window, camera, list_models[i + 1], models_vertices[list_models[i + 1]], models_faces[list_models[i + 1]], models_colors[list_models[i + 1]], models_materials[list_models[i + 1]])
                                     break
                             else:
                                 i += 1
@@ -177,6 +178,9 @@ def main() -> None:
                 if editing:
                     object_.move_pos(0, 0, event.y)
 
+        # Camera
+        camera.handle_inputs()
+
         # Project object_ on the screen
         object_.project()
 
@@ -190,7 +194,8 @@ def main() -> None:
                 window.blit(text, (20, 20 + i))
                 i += 30
 
-        window.blit(fps_text, (settings.WIN_WIDTH - 60, 20)) # Substract 60 to settings.WIN_WIDTH if not fullscreen
+        print(fps_offset)
+        window.blit(fps_text, (settings.WIN_WIDTH - fps_offset, 20)) # Substract 60 to settings.WIN_WIDTH if not fullscreen
         window.blit(loaded_text, (20, settings.WIN_HEIGHT - 40))
 
         pygame.display.flip()

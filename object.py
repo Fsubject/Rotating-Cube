@@ -1,38 +1,12 @@
 # Made entirely by Fsubject
 import settings
+import math_func as m_func
 import numpy as np
 import pygame
 
 
-def rotations_matrices(angle_x: float, angle_y: float, angle_z: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    # All changes in the 3D space (rotation, scaling, ...) are done by multiplying the object vertices with a specific matrix
-    # Vertices' = Vertices x Matrix
-
-    rotation_x_matrix = np.array([
-        [1, 0, 0],
-        [0, np.cos(angle_x), -np.sin(angle_x)],
-        [0, np.sin(angle_x), np.cos(angle_x)]
-    ])
-
-    rotation_y_matrix = np.array([
-        [np.cos(angle_y), 0, np.sin(angle_y)],
-        [0, 1, 0],
-        [-np.sin(angle_y), 0, np.cos(angle_y)]
-    ])
-
-    rotation_z_matrix = np.array([
-        [np.cos(angle_z), -np.sin(angle_z), 0],
-        [np.sin(angle_z), np.cos(angle_z), 0],
-        [0, 0, 1]
-    ])
-
-    # https://en.wikipedia.org/wiki/Rotation_matrix#Basic_3D_rotations
-
-    return rotation_x_matrix, rotation_y_matrix, rotation_z_matrix
-
-
-def perspective_matrix(z_vertex) -> np.ndarray:
-    z = 1 / (-settings.CAMERA[2] - z_vertex)
+def perspective_matrix(camera, z_vertex) -> np.ndarray:
+    z = 1 / (-camera[2] - z_vertex)
     return np.array([
         [z, 0, 0],
         [0, z, 0],
@@ -40,16 +14,11 @@ def perspective_matrix(z_vertex) -> np.ndarray:
     ])
 
 
-def return_points_distance(A, B) -> int:
-    A_x, B_x = A[0], B[0]
-    A_y, B_y = A[1], B[1]
-    A_z, B_z = A[2], B[2]
-    return np.sqrt(pow((A_x + B_x), 2) + pow((A_y + B_y), 2) + pow((A_z + B_z), 2)) # Euclidian distance formula
-
-
 class Object:
-    def __init__(self, window: pygame.surface.Surface, name: str, vertices: np.ndarray, faces: dict, colors: dict, materials: dict):
+    def __init__(self, window: pygame.surface.Surface, camera, name: str, vertices: np.ndarray, faces: dict, colors: dict, materials: dict):
         self.window = window
+        self.camera = camera
+
         self.vertices = vertices
         self.faces = faces
         self.name = name
@@ -76,19 +45,22 @@ class Object:
         self.rotation_speed = 0
 
     def project(self) -> None:
-        rotation_x_matrix, rotation_y_matrix, rotation_z_matrix = rotations_matrices(self.angle_x, self.angle_y, self.angle_z)
+        rotation_x_m = m_func.rotate_x(self.angle_x)
+        rotation_y_m = m_func.rotate_y(self.angle_y)
+        rotation_z_m = m_func.rotate_z(self.angle_z)
 
         screen_vertices = [] # Vertices ready for the screen
         vertices_pos = [] # Actual position of the vertices (without the scaling up and everything...)
         for raw_vertex in self.vertices:
-            vertex = np.dot(raw_vertex, rotation_x_matrix)
-            vertex = np.dot(vertex, rotation_y_matrix)
-            vertex = np.dot(vertex, rotation_z_matrix)
+            vertex = np.dot(raw_vertex, rotation_x_m)
+            vertex = np.dot(vertex, rotation_y_m)
+            vertex = np.dot(vertex, rotation_z_m)
 
-            vertex[2] += self.z_pos
+            vertex = np.dot(vertex, self.camera.rotation)
+            vertex[0] += self.camera.pos[0]
+            vertex[1] += self.camera.pos[1]
 
-            projection_matrix = perspective_matrix(vertex[2])
-
+            projection_matrix = perspective_matrix(self.camera.pos, vertex[2])
             vertex = np.dot(vertex, projection_matrix)
 
             x = ((vertex[0] * self.scale) + settings.WIN_WIDTH / 2) + self.x_pos
@@ -109,7 +81,7 @@ class Object:
         for i, face in enumerate(self.faces):
             z_distance = 0
             for vertex_idx in face:
-                z_distance += return_points_distance(settings.CAMERA, vertices_pos[vertex_idx])
+                z_distance += m_func.return_points_distance(self.camera.pos, vertices_pos[vertex_idx])
 
             avg_z = z_distance / len(face)
 
