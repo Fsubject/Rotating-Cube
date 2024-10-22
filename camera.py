@@ -1,5 +1,3 @@
-import settings
-import math_func as m_func
 import pygame
 import numpy as np
 
@@ -7,17 +5,20 @@ import numpy as np
 class Camera:
     def __init__(self):
         self.pos = np.array([0.0, 0.0, -10.0])
+        self.target = np.array([0.0, 0.0, 0.0])
 
-        self.speed = 0.065
-        self.rotation_speed = 0.0035
+        self.world_up = np.array([0, 1, 0])
 
-        self.angle_x = 0
-        self.angle_y = 0
-        self.rotation = self.cam_rotation()
+        self.speed = 0.2
 
-    def handle_inputs(self):
+        self.view_matrix = self.get_view_matrix()
+
+    def update(self):
+        self.handle_inputs()
+        self.view_matrix = self.get_view_matrix()
+
+    def handle_inputs(self) -> None:
         keys = pygame.key.get_pressed()
-        mouse_rel = pygame.mouse.get_rel()
 
         if keys[pygame.K_z]:
             self.pos[2] += self.speed
@@ -32,17 +33,18 @@ class Camera:
         if keys[pygame.K_e]:
             self.pos[1] -= self.speed
 
-        if mouse_rel[0] != 0:
-            if pygame.mouse.get_pressed()[0]:
-                self.angle_y += mouse_rel[0] * self.rotation_speed
+    def get_view_matrix(self) -> np.ndarray:
+        forward = self.target - self.pos
+        forward = forward / np.linalg.norm(forward) # normalize the forward vector to have a length unit (x, y, z)
 
-        if mouse_rel[1] != 0:
-            if pygame.mouse.get_pressed()[0]:
-                self.angle_x += mouse_rel[1] * self.rotation_speed
+        right = np.cross(forward, self.world_up)
+        right = right / np.linalg.norm(right)
 
-        self.rotation = self.cam_rotation()
+        up = np.cross(right, forward)
+        up = up / np.linalg.norm(up)
 
-    def cam_rotation(self):
-        rotation_x_m = m_func.rotate_x(self.angle_x)
-        rotation_y_m = m_func.rotate_y(self.angle_y)
-        return np.dot(rotation_x_m, rotation_y_m)
+        return np.array([ # view matrix
+            [right[0], right[1], right[2]],
+            [up[0], up[1], up[2]],
+            [forward[0], forward[1], forward[2]]
+        ])

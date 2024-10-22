@@ -136,10 +136,6 @@ def main() -> None:
         clock.tick(settings.MAX_FRAMERATE)
         window.fill(settings.BG)
 
-        # Render dynamic texts
-        fps_text = mid_font.render(str(round(clock.get_fps())), False, settings.L_GREY)
-        loaded_text = small_font.render(f"Current model: {object_.name}.obj", False, settings.L_GREY)
-
         # Check for pygame event
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -173,19 +169,24 @@ def main() -> None:
                         editing = False if editing is True else True
             elif event.type == pygame.MOUSEMOTION:
                 if editing:
-                    object_.move_pos(event.rel[0], event.rel[1], 0)
+                    object_.move_obj((event.rel[0], event.rel[1], 0))
             elif event.type == pygame.MOUSEWHEEL:
                 if editing:
-                    object_.move_pos(0, 0, event.y)
+                    object_.move_obj((0, 0, event.y))
 
         # Camera
-        camera.handle_inputs()
+        camera.update()
 
         # Project object_ on the screen
         object_.project()
 
         object_.angle_x += object_.rotation_speed
         object_.angle_y += object_.rotation_speed
+
+        # Render dynamic texts
+        fps_text = mid_font.render(str(round(clock.get_fps())), False, settings.L_GREY)
+        loaded_text = small_font.render(f"Current model: {object_.name}.obj", False, settings.L_GREY)
+        cam_pos_text = small_font.render(f"{round(camera.pos[0], 3)}, {round(camera.pos[1], 3)}, {round(camera.pos[2], 3)}", False, settings.L_GREY)
 
         # Attach texts to the screen
         if show_controls:
@@ -194,9 +195,9 @@ def main() -> None:
                 window.blit(text, (20, 20 + i))
                 i += 30
 
-        print(fps_offset)
-        window.blit(fps_text, (settings.WIN_WIDTH - fps_offset, 20)) # Substract 60 to settings.WIN_WIDTH if not fullscreen
+        window.blit(fps_text, (settings.WIN_WIDTH - fps_offset, 20))
         window.blit(loaded_text, (20, settings.WIN_HEIGHT - 40))
+        window.blit(cam_pos_text, (settings.WIN_WIDTH - 200, settings.WIN_HEIGHT - 40))
 
         pygame.display.flip()
 

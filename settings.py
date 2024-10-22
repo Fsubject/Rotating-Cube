@@ -1,7 +1,8 @@
 import numpy as np
+import ctypes
 
 # Window settings
-WIN_WIDTH, WIN_HEIGHT = 1200, 800
+WIN_WIDTH, WIN_HEIGHT = ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1)
 MAX_FRAMERATE = 60
 
 RUN_LOOP = True
