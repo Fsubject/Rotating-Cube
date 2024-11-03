@@ -8,11 +8,7 @@ from camera import Camera
 
 
 def retrieve_obj_files(directory: str) -> tuple[dict, dict, dict, dict, list]:
-    models_vertices = {}
-    models_faces = {}
-    models_materials = {}
-    models_colors = {}
-    list_models = []
+    models_vertices, models_faces, models_materials, models_colors, list_models = {}, {}, {}, {}, []
 
     for file in os.listdir(directory):
         if file.endswith(".obj"):
@@ -130,7 +126,6 @@ def main() -> None:
 
     # Settings
     show_controls = False
-    editing = False
 
     while running:
         clock.tick(settings.MAX_FRAMERATE)
@@ -165,14 +160,6 @@ def main() -> None:
                         show_controls = False if show_controls is True else True
                     case pygame.K_r:
                         object_.reset()
-                    case pygame.K_LCTRL:
-                        editing = False if editing is True else True
-            elif event.type == pygame.MOUSEMOTION:
-                if editing:
-                    object_.move_obj((event.rel[0], event.rel[1], 0))
-            elif event.type == pygame.MOUSEWHEEL:
-                if editing:
-                    object_.move_obj((0, 0, event.y))
 
         # Camera
         camera.update()

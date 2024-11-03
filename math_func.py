@@ -28,8 +28,9 @@ def rotate_z(angle: float) -> np.ndarray:
     ])
 
 
+# A.K.A -> Euclidian distance formula
 def get_points_distance(A, B) -> int:
     A_x, B_x = A[0], B[0]
     A_y, B_y = A[1], B[1]
     A_z, B_z = A[2], B[2]
-    return np.sqrt(pow((A_x + B_x), 2) + pow((A_y + B_y), 2) + pow((A_z + B_z), 2)) # Euclidian distance formula
+    return np.sqrt(pow((A_x + B_x), 2) + pow((A_y + B_y), 2) + pow((A_z + B_z), 2))

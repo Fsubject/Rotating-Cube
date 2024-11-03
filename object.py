@@ -14,8 +14,23 @@ def perspective_matrix(camera, z_vertex) -> np.ndarray:
     ])
 
 
+def perspective_projection2():
+    fov = np.radians(90)
+    aspect = 1920 / 1080
+    near = 0.1
+    far = 1000.0
+
+    f = 1 / np.tan(fov / 2)
+    return np.array([
+        [f / aspect, 0, 0, 0],
+        [0, f, 0, 0],
+        [0, 0, (far + near) / (near - far), (2 * far * near) / (near - far)],
+        [0, 0, -(2 * far * near) / (far - near), 0]
+    ])
+
+
 class Object:
-    def __init__(self, window: pygame.surface.Surface, camera, name: str, vertices: np.ndarray, faces: dict, colors: dict, materials: dict):
+    def __init__(self, window: pygame.surface.Surface, camera, name: str, vertices: np.ndarray, faces: dict, colors: dict, materials: dict) -> None:
         self.window = window
         self.camera = camera
 
@@ -54,11 +69,10 @@ class Object:
             vertex = np.dot(vertex, rotation_y_m)
             vertex = np.dot(vertex, rotation_z_m)
 
-            vertex[0] += self.camera.pos[0]
-            vertex[1] += self.camera.pos[1]
+            vertex[0] -= self.camera.pos[0]
+            vertex[1] -= self.camera.pos[1]
 
-            #view_matrix = self.camera.view_matrix
-            #vertex = np.dot(vertex, view_matrix)
+            vertex = np.dot(vertex, self.camera.view_matrix)
 
             projection_matrix = perspective_matrix(self.camera.pos, vertex[2])
             vertex = np.dot(vertex, projection_matrix)
@@ -111,7 +125,3 @@ class Object:
                 ]
 
             pygame.draw.polygon(self.window, self.materials[color], polygon, 0)
-
-    def move_obj(self, movement: tuple) -> None:
-        for i in range(len(self.pos)):
-            self.pos[i] += movement[i]

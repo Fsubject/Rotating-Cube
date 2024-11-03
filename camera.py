@@ -1,9 +1,10 @@
 import pygame
 import numpy as np
+import math_func as m_func
 
 
 class Camera:
-    def __init__(self):
+    def __init__(self) -> None:
         self.pos = np.array([0.0, 0.0, -10.0])
         self.target = np.array([0.0, 0.0, 0.0])
 
@@ -13,7 +14,7 @@ class Camera:
 
         self.view_matrix = self.get_view_matrix()
 
-    def update(self):
+    def update(self) -> None:
         self.handle_inputs()
         self.view_matrix = self.get_view_matrix()
 
@@ -25,9 +26,9 @@ class Camera:
         if keys[pygame.K_s]:
             self.pos[2] -= self.speed
         if keys[pygame.K_q]:
-            self.pos[0] += self.speed
-        if keys[pygame.K_d]:
             self.pos[0] -= self.speed
+        if keys[pygame.K_d]:
+            self.pos[0] += self.speed
         if keys[pygame.K_a]:
             self.pos[1] += self.speed
         if keys[pygame.K_e]:
