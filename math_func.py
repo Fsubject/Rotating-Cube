@@ -34,3 +34,12 @@ def get_points_distance(A, B) -> int:
     A_y, B_y = A[1], B[1]
     A_z, B_z = A[2], B[2]
     return np.sqrt(pow((A_x + B_x), 2) + pow((A_y + B_y), 2) + pow((A_z + B_z), 2))
+
+
+def perspective_matrix(camera, z_vertex) -> np.ndarray:
+    z = 1 / (-camera[2] - z_vertex)
+    return np.array([
+        [z, 0, 0],
+        [0, z, 0],
+        [0, 0, z]
+    ])

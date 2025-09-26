@@ -7,16 +7,14 @@ class Camera:
     def __init__(self) -> None:
         self.pos = np.array([0.0, 0.0, -10.0])
         self.target = np.array([0.0, 0.0, 0.0])
-
         self.world_up = np.array([0, 1, 0])
 
         self.speed = 0.2
-
-        self.view_matrix = self.get_view_matrix()
+        #self.view_matrix = self.get_view_matrix()
 
     def update(self) -> None:
         self.handle_inputs()
-        self.view_matrix = self.get_view_matrix()
+        #self.view_matrix = self.get_view_matrix()
 
     def handle_inputs(self) -> None:
         keys = pygame.key.get_pressed()
