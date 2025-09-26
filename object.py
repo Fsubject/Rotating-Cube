@@ -7,7 +7,7 @@ import pygame
 from camera import Camera
 
 
-def load_material_file(file_name: str) -> dict:
+def load_mtl_file(file_name: str) -> dict:
     materials = {}
 
     try:
@@ -92,7 +92,7 @@ class Object:
         self.show_vertices = True
 
     def load(self) -> None:
-        self.materials = load_material_file(self.model_name)
+        self.materials = load_mtl_file(self.model_name)
         self.vertices, self.faces = load_obj_file(self.model_name, len(self.materials))
 
     def reset(self) -> None:
