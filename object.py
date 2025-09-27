@@ -27,7 +27,6 @@ def load_mtl_file(file_name: str) -> dict:
     except FileNotFoundError:
         materials[settings.default_mtl_name] = settings.GREEN
     finally:
-        print(materials)
         return materials
 
 
@@ -69,7 +68,7 @@ def load_obj_file(file_name: str, num_materials: int) -> tuple[np.ndarray, dict]
                 else:
                     faces[actual_mtl].append(face)
 
-        print(f"resources/{file_name}.obj has been loaded ({len(vertices)} vertices, {len(faces)} faces)")
+        print(f"resources/{file_name}.obj has been loaded ({len(vertices)} vertices")
 
         return np.array(vertices), faces
 
@@ -152,18 +151,11 @@ class Object:
         faces_arr[::-1].sort(order="distance") # Since .sort() only does ascending sorting, use [::-1] to then reverse the list
 
         for face, distance, color in faces_arr:
-            if len(face) == 4:
-                polygon = [
-                    (screen_vertices[face[0]][0], screen_vertices[face[0]][1]),
-                    (screen_vertices[face[1]][0], screen_vertices[face[1]][1]),
-                    (screen_vertices[face[2]][0], screen_vertices[face[2]][1]),
-                    (screen_vertices[face[3]][0], screen_vertices[face[3]][1])
-                ]
-            else:
-                polygon = [
-                    (screen_vertices[face[0]][0], screen_vertices[face[0]][1]),
-                    (screen_vertices[face[1]][0], screen_vertices[face[1]][1]),
-                    (screen_vertices[face[2]][0], screen_vertices[face[2]][1])
-                ]
+            polygon = []
+
+            for vertex_idx in face:
+                polygon.append(
+                    (screen_vertices[vertex_idx][0], screen_vertices[vertex_idx][1]) # (x, y)
+                )
 
             pygame.draw.polygon(self.window, color, polygon, 3 if color == settings.GREEN else 0)

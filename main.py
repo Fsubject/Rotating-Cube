@@ -110,7 +110,7 @@ class Program:
 
             self.window.blit(fps_text, (settings.WIN_WIDTH - 60, 20)) # - 60 | little offset to make it looks better
             self.window.blit(loaded_text, (20, settings.WIN_HEIGHT - 40))
-            self.window.blit(cam_pos_text, (settings.WIN_WIDTH - 200, settings.WIN_HEIGHT - 40))
+            self.window.blit(cam_pos_text, (settings.WIN_WIDTH - 170, settings.WIN_HEIGHT - 40))
 
             if self.show_controls:
                 i = 0
@@ -120,8 +120,8 @@ class Program:
 
             pygame.display.flip()
 
-    print("Exiting")
-    pygame.quit()
+        print("Exiting")
+        pygame.quit()
 
 
 if __name__ == "__main__":
